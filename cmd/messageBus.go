@@ -25,6 +25,10 @@ var messageBusCmd = &cobra.Command{
 	Short: "all message bus related commands",
 }
 
+const (
+	BasePathMessageBus = "v2/message_bus"
+)
+
 func init() {
 	rootCmd.AddCommand(messageBusCmd)
 

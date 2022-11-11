@@ -16,9 +16,16 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"log"
+	"net/http"
+	"strings"
+	"text/tabwriter"
 
 	"github.com/spf13/cobra"
+
+	"github.com/IceWhaleTech/CasaOS-CLI/codegen/message_bus"
 )
 
 // messageBusListEventTypesCmd represents the messageBusListEventTypes command
@@ -26,7 +33,46 @@ var messageBusListEventTypesCmd = &cobra.Command{
 	Use:   "event-types",
 	Short: "list event types registered in message bus",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("messageBusListEventTypes called")
+		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+
+		url := fmt.Sprintf("http://%s/%s", rootURL, BasePathMessageBus)
+
+		client, err := message_bus.NewClientWithResponses(url)
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
+		defer cancel()
+
+		response, err := client.GetEventTypesWithResponse(ctx)
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+
+		if response.StatusCode() != http.StatusOK {
+			log.Fatalln("unexpected status code", response.Status())
+		}
+
+		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 3, ' ', 0)
+		defer w.Flush()
+
+		if len(*response.JSON200) > 0 {
+			fmt.Fprintln(w, "SOURCE ID\tEVENT NAME\tPROPERTY TYPES")
+			fmt.Fprintln(w, "---------\t----------\t--------------")
+		}
+
+		for _, eventType := range *response.JSON200 {
+			propertyTypes := make([]string, 0)
+			for _, propertyType := range eventType.PropertyTypeList {
+				propertyTypes = append(propertyTypes, *propertyType.Name)
+			}
+
+			fmt.Fprintf(w, "%s\t%s\t%s\n", eventType.SourceID, eventType.Name, strings.Join(propertyTypes, ","))
+		}
 	},
 }
 
