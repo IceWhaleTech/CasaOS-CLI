@@ -19,26 +19,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// messageBusCmd represents the messageBus command
-var messageBusCmd = &cobra.Command{
-	Use:   "message-bus",
-	Short: "All message bus related commands",
+// userCmd represents the user command
+var userCmd = &cobra.Command{
+	Use:   "user",
+	Short: "All user related commands",
 }
 
-const (
-	BasePathMessageBus = "v2/message_bus"
-)
-
 func init() {
-	rootCmd.AddCommand(messageBusCmd)
+	rootCmd.AddCommand(userCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// messageBusCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// userCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// messageBusCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// userCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
