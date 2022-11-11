@@ -4,6 +4,31 @@
 
 A command-line tool to interact with CasaOS for testing and diagnosing purpose
 
+## Usage
+
+```text
+A command line interface for CasaOS
+
+Usage:
+  casaosctl [command]
+
+Available Commands:
+  completion    Generate the autocompletion script for the specified shell
+  help          Help about any command
+  local-storage All local storage related commands
+  message-bus   All message bus related commands
+
+Flags:
+  -h, --help              help for casaosctl
+  -u, --root-url string   root url of CasaOS API (default "localhost:80")
+
+Additional help topics:
+  casaosctl gateway       All gateway related commands
+  casaosctl user          All user related commands
+
+Use "casaosctl [command] --help" for more information about a command.
+```
+
 ## Contributing
 
 Use <https://github.com/spf13/cobra-cli> to add any new command.
