@@ -1,2 +1,60 @@
 # CasaOS-CLI
-A command-line tool to interact with CasaOS for testing and diagnosing purpose 
+
+[![Go Reference](https://pkg.go.dev/badge/github.com/IceWhaleTech/CasaOS-CLI.svg)](https://pkg.go.dev/github.com/IceWhaleTech/CasaOS-CLI) [![Go Report Card](https://goreportcard.com/badge/github.com/IceWhaleTech/CasaOS-CLI)](https://goreportcard.com/report/github.com/IceWhaleTech/CasaOS-CLI) [![goreleaser](https://github.com/IceWhaleTech/CasaOS-CLI/actions/workflows/release.yml/badge.svg)](https://github.com/IceWhaleTech/CasaOS-CLI/actions/workflows/release.yml)
+
+A command-line tool to interact with CasaOS for testing and diagnosing purpose
+
+## Contributing
+
+Use <https://github.com/spf13/cobra-cli> to add any new command.
+
+Follow example steps below to add commands like `casaos-cli message-bus list event-types`
+
+1. create command scaffold with `cobra-cli add`:
+
+    ```shell
+    go run github.com/spf13/cobra-cli@latest add messageBus --config .cobra.yaml
+    go run github.com/spf13/cobra-cli@latest add messageBusList -p messageBusCmd --config .cobra.yaml
+    go run github.com/spf13/cobra-cli@latest add messageBusListEventTypes -p messageBusListCmd --config .cobra.yaml
+    ```
+
+    > It is important to include `--config .cobra.yaml` to attribute the scaffold code with correct license header.
+
+2. update each `messageBus*.go` file with correct command format:
+
+    ```go
+    // messageBus.go
+    Use:   "messageBus",
+    // messageBusList.go
+    Use:   "messageBusList",
+    // messageBusListEventTypes.go
+    Use:   "messageBusListEventTypes",
+    ```
+
+    becomes
+
+    ```go
+    // messageBus.go
+    Use:   "message-bus",
+    // messageBusList.go
+    Use:   "list",
+    // messageBusListEventTypes.go
+    Use:   "event-types",
+    ```
+
+3. update short and long description for each command, and implement the logics
+
+4. to verify the commands are created correctly, run
+
+    ```shell
+    $ go run main.go message-bus list event-types --help
+    list event types
+
+    Usage:
+    CasaOS-CLI message-bus list event-types [flags]
+
+    Flags:
+    -h, --help   help for event-types
+    ```
+
+> Run `go run github.com/spf13/cobra-cli@latest --help` to see additional help message.
