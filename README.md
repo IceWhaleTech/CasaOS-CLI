@@ -17,6 +17,7 @@ Available Commands:
   help          Help about any command
   local-storage All local storage related commands
   message-bus   All message bus related commands
+  version       Show version
 
 Flags:
   -h, --help              help for casaosctl
