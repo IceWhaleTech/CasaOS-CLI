@@ -1,0 +1,98 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+project_name: casaosctl
+before:
+  hooks:
+    - go generate
+    - go mod tidy
+    - go test -v ./...
+builds:
+  - id: casaosctl-amd64
+    binary: build/sysroot/usr/bin/casaosctl
+    env:
+      - CGO_ENABLED=1
+      - CC=x86_64-linux-gnu-gcc
+    ldflags:
+      - -s
+      - -w
+      - -extldflags "-static"
+    tags:
+      - musl
+      - netgo
+    goos:
+      - linux
+    goarch:
+      - amd64
+  - id: casaosctl-arm64
+    binary: build/sysroot/usr/bin/casaosctl
+    env:
+      - CGO_ENABLED=1
+      - CC=aarch64-linux-gnu-gcc
+    ldflags:
+      - -s
+      - -w
+      - -extldflags "-static"
+    tags:
+      - musl
+      - netgo
+    goos:
+      - linux
+    goarch:
+      - arm64
+  - id: casaosctl-arm-7
+    binary: build/sysroot/usr/bin/casaosctl
+    env:
+      - CGO_ENABLED=1
+      - CC=arm-linux-gnueabihf-gcc
+    ldflags:
+      - -s
+      - -w
+      - -extldflags "-static"
+    tags:
+      - musl
+      - netgo
+    goos:
+      - linux
+    goarch:
+      - arm
+    goarm:
+      - "7"
+archives:
+  - name_template: "{{ .Os }}-{{ .Arch }}-{{ .ProjectName }}-v{{ .Version }}"
+    id: casaosctl
+    builds:
+      - casaosctl-amd64
+      - casaosctl-arm64
+      - casaosctl-arm-7
+    replacements:
+      arm: arm-7
+    files:
+      - build/**/*
+  - name_template: "{{ .Os }}-{{ .Arch }}-{{ .ProjectName }}-migration-tool-v{{ .Version }}"
+    id: casaosctl-migration-tool
+    builds:
+      - casaosctl-migration-tool-amd64
+      - casaosctl-migration-tool-arm64
+      - casaosctl-migration-tool-arm-7
+    replacements:
+      arm: arm-7
+    files:
+      - build/sysroot/etc/**/*
+checksum:
+  name_template: "checksums.txt"
+snapshot:
+  name_template: "{{ incpatch .Version }}-snapshot"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+release:
+  github:
+    owner: IceWhaleTech
+    name: CasaOS-LocalStorage
+  draft: true
+  prerelease: auto
+  mode: replace
+  name_template: "v{{ .Version }}"
