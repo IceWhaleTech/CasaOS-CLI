@@ -21,6 +21,17 @@ package main
 
 import "github.com/IceWhaleTech/CasaOS-CLI/cmd"
 
+var (
+	// see https://goreleaser.com/cookbooks/using-main.version
+	version = "0.3.8"
+	commit  = "unknown"
+	date    = "unknown"
+)
+
 func main() {
+	cmd.Version = version
+	cmd.Commit = commit
+	cmd.Date = date
+
 	cmd.Execute()
 }

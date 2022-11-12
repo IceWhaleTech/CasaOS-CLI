@@ -23,9 +23,14 @@ import (
 )
 
 const (
+	FlagRootURL    = "root-url"
 	DefaultTimeout = 10 * time.Second
+)
 
-	FlagRootURL = "root-url"
+var (
+	Version string
+	Commit  string
+	Date    string
 )
 
 // rootCmd represents the base command when called without any subcommands

@@ -16,34 +16,31 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
-// messageBusCmd represents the messageBus command
-var messageBusCmd = &cobra.Command{
-	Use:   "message-bus",
-	Short: "All message bus related commands",
+// versionCmd represents the version command
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Show version",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println(Version)
+		fmt.Printf("(build time: %s, commit: %s)\n", Date, Commit)
+	},
 }
 
-const (
-	BasePathMessageBus = "v2/message_bus"
-
-	FlagMessageBusSourceID          = "source-id"
-	FlagMessageBusEventNames        = "event-names"
-	FlagMessageBusActionNames       = "action-names"
-	FlagMessageBusMessageBufferSize = "message-buffer-size"
-)
-
 func init() {
-	rootCmd.AddCommand(messageBusCmd)
+	rootCmd.AddCommand(versionCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// messageBusCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// versionCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// messageBusCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// versionCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
