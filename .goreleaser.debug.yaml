@@ -91,7 +91,7 @@ changelog:
 release:
   github:
     owner: IceWhaleTech
-    name: CasaOS-LocalStorage
+    name: CasaOS-CLI
   draft: true
   prerelease: auto
   mode: replace
