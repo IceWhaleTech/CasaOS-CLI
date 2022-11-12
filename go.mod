@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/IceWhaleTech/CasaOS-Common v0.3.8-alpha1
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/swag v0.21.1 // indirect
