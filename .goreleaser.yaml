@@ -4,6 +4,7 @@ project_name: casaosctl
 before:
   hooks:
     - go generate
+    - go run github.com/google/go-licenses@latest check . --disallowed_types=restricted
     - go mod tidy
     - go test -v ./...
 builds:
