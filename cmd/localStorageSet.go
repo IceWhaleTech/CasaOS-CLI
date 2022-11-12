@@ -19,31 +19,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// localStorageCmd represents the localStorage command
-var localStorageCmd = &cobra.Command{
-	Use:   "local-storage",
-	Short: "All local storage related commands",
+// localStorageSetCmd represents the localStorageSet command
+var localStorageSetCmd = &cobra.Command{
+	Use:   "set",
+	Short: "set an entity in local storage",
 }
 
-const (
-	BasePathLocalStorage = "v2/local_storage"
-
-	FlagLocalStorageFSType            = "fstype"
-	FlagLocalStorageMountPoint        = "mount-point"
-	FlagLocalStorageSourceBasePath    = "source-base-path"
-	FlagLocalStorageSourceVolumeUUIDs = "source-volume-uuids"
-)
-
 func init() {
-	rootCmd.AddCommand(localStorageCmd)
+	localStorageCmd.AddCommand(localStorageSetCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// localStorageCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// localStorageSetCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// localStorageCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// localStorageSetCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
