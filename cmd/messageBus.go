@@ -29,8 +29,8 @@ const (
 	BasePathMessageBus = "v2/message_bus"
 
 	FlagMessageBusSourceID          = "source-id"
-	FlagMessageBusEventNames        = "event-name"
-	FlagMessageBusActionNames       = "action-name"
+	FlagMessageBusEventNames        = "event-names"
+	FlagMessageBusActionNames       = "action-names"
 	FlagMessageBusMessageBufferSize = "message-buffer-size"
 )
 
