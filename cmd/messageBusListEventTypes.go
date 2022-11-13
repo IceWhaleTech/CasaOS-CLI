@@ -68,7 +68,7 @@ var messageBusListEventTypesCmd = &cobra.Command{
 		for _, eventType := range *response.JSON200 {
 			propertyTypes := make([]string, 0)
 			for _, propertyType := range eventType.PropertyTypeList {
-				propertyTypes = append(propertyTypes, *propertyType.Name)
+				propertyTypes = append(propertyTypes, propertyType.Name)
 			}
 
 			fmt.Fprintf(w, "%s\t%s\t%s\n", eventType.SourceID, eventType.Name, strings.Join(propertyTypes, ","))
