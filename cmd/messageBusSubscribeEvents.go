@@ -16,10 +16,12 @@ limitations under the License.
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
 
+	"github.com/IceWhaleTech/CasaOS-CLI/codegen/message_bus"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/websocket"
 )
@@ -71,7 +73,18 @@ var messageBusSubscribeEventsCmd = &cobra.Command{
 			if err != nil {
 				log.Fatalln(err.Error())
 			}
-			log.Println(string(msg[:n]))
+
+			var event message_bus.Event
+
+			if err := json.Unmarshal(msg[:n], &event); err != nil {
+				log.Println(err.Error())
+			}
+
+			output, err := json.MarshalIndent(event, "", "  ")
+			if err != nil {
+				log.Println(err.Error())
+			}
+			log.Println(string(output))
 		}
 	},
 }
