@@ -85,6 +85,10 @@ var localStorageSetMergeCmd = &cobra.Command{
 			log.Fatalln(err.Error())
 		}
 
+		if response == nil {
+			log.Fatalln("empty response")
+		}
+
 		if response.StatusCode() != http.StatusOK {
 			log.Fatalln("unexpected status code", response.Status())
 		}
