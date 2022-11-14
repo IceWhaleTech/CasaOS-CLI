@@ -30,7 +30,9 @@ const (
 
 	FlagMessageBusSourceID          = "source-id"
 	FlagMessageBusEventNames        = "event-names"
+	FlagMessageBusActionName        = "action-name"
 	FlagMessageBusActionNames       = "action-names"
+	FlagMessageBusProperties        = "properties"
 	FlagMessageBusMessageBufferSize = "message-buffer-size"
 )
 

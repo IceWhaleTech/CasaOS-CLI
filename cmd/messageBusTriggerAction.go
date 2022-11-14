@@ -16,30 +16,88 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"log"
+	"net/http"
+	"strings"
 
+	"github.com/IceWhaleTech/CasaOS-CLI/codegen/message_bus"
 	"github.com/spf13/cobra"
 )
 
 // messageBusTriggerActionCmd represents the messageBusTriggerAction command
 var messageBusTriggerActionCmd = &cobra.Command{
-	Use:   "action",
+	Use:   "triger",
 	Short: "trigger an action via message bus",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("messageBusTriggerAction called")
+		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+
+		sourceID, err := cmd.Flags().GetString(FlagMessageBusSourceID)
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+
+		actionName, err := cmd.Flags().GetString(FlagMessageBusActionName)
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+
+		properties, err := cmd.Flags().GetString(FlagMessageBusProperties)
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+
+		url := fmt.Sprintf("http://%s/%s", rootURL, BasePathMessageBus)
+
+		client, err := message_bus.NewClientWithResponses(url)
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+
+		request := make([]message_bus.Property, 0)
+		for _, property := range strings.Split(properties, ",") {
+			kv := strings.Split(property, "=")
+			if len(kv) != 2 {
+				log.Fatalln("invalid property:", property)
+			}
+
+			request = append(request, message_bus.Property{Name: kv[0], Value: kv[1]})
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
+		defer cancel()
+
+		response, err := client.TriggerActionWithResponse(ctx, sourceID, actionName, request)
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+
+		if response == nil {
+			log.Fatalln("empty response")
+		}
+
+		if response.StatusCode() != http.StatusOK {
+			log.Fatalln("unexpected status code", response.Status())
+		}
 	},
 }
 
 func init() {
-	messageBusTriggerCmd.AddCommand(messageBusTriggerActionCmd)
+	messageBusCmd.AddCommand(messageBusTriggerActionCmd)
 
-	// Here you will define your flags and configuration settings.
+	messageBusTriggerActionCmd.Flags().StringP(FlagMessageBusSourceID, "s", "", "source id")
+	messageBusTriggerActionCmd.Flags().StringP(FlagMessageBusActionName, "n", "", "action name")
+	messageBusTriggerActionCmd.Flags().StringP(FlagMessageBusProperties, "p", "", "action properties (in form of `K=V` and separated by comma)")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// messageBusTriggerActionCmd.PersistentFlags().String("foo", "", "A help for foo")
+	if err := messageBusSubscribeActionsCmd.MarkFlagRequired(FlagMessageBusSourceID); err != nil {
+		log.Fatalln(err.Error())
+	}
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// messageBusTriggerActionCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	if err := messageBusSubscribeActionsCmd.MarkFlagRequired(FlagMessageBusActionName); err != nil {
+		log.Fatalln(err.Error())
+	}
 }

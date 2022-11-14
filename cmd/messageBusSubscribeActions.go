@@ -81,7 +81,7 @@ func init() {
 
 	messageBusSubscribeActionsCmd.Flags().UintP(FlagMessageBusMessageBufferSize, "m", 1024, "message buffer size")
 	messageBusSubscribeActionsCmd.Flags().StringP(FlagMessageBusSourceID, "s", "", "source id")
-	messageBusSubscribeActionsCmd.Flags().StringP(FlagMessageBusActionNames, "n", "", "action names (seperated by comma)")
+	messageBusSubscribeActionsCmd.Flags().StringP(FlagMessageBusActionNames, "n", "", "action names (separated by comma)")
 
 	if err := messageBusSubscribeActionsCmd.MarkFlagRequired(FlagMessageBusSourceID); err != nil {
 		log.Fatalln(err.Error())
