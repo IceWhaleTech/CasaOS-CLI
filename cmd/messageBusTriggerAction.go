@@ -28,7 +28,7 @@ import (
 
 // messageBusTriggerActionCmd represents the messageBusTriggerAction command
 var messageBusTriggerActionCmd = &cobra.Command{
-	Use:   "triger",
+	Use:   "trigger",
 	Short: "trigger an action via message bus",
 	Run: func(cmd *cobra.Command, args []string) {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
@@ -93,11 +93,11 @@ func init() {
 	messageBusTriggerActionCmd.Flags().StringP(FlagMessageBusActionName, "n", "", "action name")
 	messageBusTriggerActionCmd.Flags().StringP(FlagMessageBusProperties, "p", "", "action properties (in form of `K=V` and separated by comma)")
 
-	if err := messageBusSubscribeActionsCmd.MarkFlagRequired(FlagMessageBusSourceID); err != nil {
+	if err := messageBusTriggerActionCmd.MarkFlagRequired(FlagMessageBusSourceID); err != nil {
 		log.Fatalln(err.Error())
 	}
 
-	if err := messageBusSubscribeActionsCmd.MarkFlagRequired(FlagMessageBusActionName); err != nil {
+	if err := messageBusTriggerActionCmd.MarkFlagRequired(FlagMessageBusActionName); err != nil {
 		log.Fatalln(err.Error())
 	}
 }
