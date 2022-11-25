@@ -58,14 +58,15 @@ var messageBusTriggerActionCmd = &cobra.Command{
 			log.Fatalln(err.Error())
 		}
 
-		request := make([]message_bus.Property, 0)
+		request := map[string]string{}
+
 		for _, property := range strings.Split(properties, ",") {
 			kv := strings.Split(property, "=")
 			if len(kv) != 2 {
 				log.Fatalln("invalid property:", property)
 			}
 
-			request = append(request, message_bus.Property{Name: kv[0], Value: kv[1]})
+			request[kv[0]] = kv[1]
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
