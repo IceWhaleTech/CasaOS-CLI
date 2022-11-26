@@ -35,7 +35,7 @@ var (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "casaosctl",
+	Use:   "casaos-cli",
 	Short: "A command line interface for CasaOS",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
