@@ -1,6 +1,6 @@
 # This is an example .goreleaser.yml file with some sensible defaults.
 # Make sure to check the documentation at https://goreleaser.com
-project_name: casaosctl
+project_name: casaos-cli
 before:
   hooks:
     - go generate
@@ -8,8 +8,8 @@ before:
     - go mod tidy
     - go test -v ./...
 builds:
-  - id: casaosctl-amd64
-    binary: build/sysroot/usr/bin/casaosctl
+  - id: casaos-cli-amd64
+    binary: build/sysroot/usr/bin/casaos-cli
     env:
       - CGO_ENABLED=1
       - CC=x86_64-linux-gnu-gcc
@@ -24,8 +24,8 @@ builds:
       - linux
     goarch:
       - amd64
-  - id: casaosctl-arm64
-    binary: build/sysroot/usr/bin/casaosctl
+  - id: casaos-cli-arm64
+    binary: build/sysroot/usr/bin/casaos-cli
     env:
       - CGO_ENABLED=1
       - CC=aarch64-linux-gnu-gcc
@@ -40,8 +40,8 @@ builds:
       - linux
     goarch:
       - arm64
-  - id: casaosctl-arm-7
-    binary: build/sysroot/usr/bin/casaosctl
+  - id: casaos-cli-arm-7
+    binary: build/sysroot/usr/bin/casaos-cli
     env:
       - CGO_ENABLED=1
       - CC=arm-linux-gnueabihf-gcc
@@ -60,21 +60,21 @@ builds:
       - "7"
 archives:
   - name_template: "{{ .Os }}-{{ .Arch }}-{{ .ProjectName }}-v{{ .Version }}"
-    id: casaosctl
+    id: casaos-cli
     builds:
-      - casaosctl-amd64
-      - casaosctl-arm64
-      - casaosctl-arm-7
+      - casaos-cli-amd64
+      - casaos-cli-arm64
+      - casaos-cli-arm-7
     replacements:
       arm: arm-7
     files:
       - build/**/*
   - name_template: "{{ .Os }}-{{ .Arch }}-{{ .ProjectName }}-migration-tool-v{{ .Version }}"
-    id: casaosctl-migration-tool
+    id: casaos-cli-migration-tool
     builds:
-      - casaosctl-migration-tool-amd64
-      - casaosctl-migration-tool-arm64
-      - casaosctl-migration-tool-arm-7
+      - casaos-cli-migration-tool-amd64
+      - casaos-cli-migration-tool-arm64
+      - casaos-cli-migration-tool-arm-7
     replacements:
       arm: arm-7
     files:

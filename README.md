@@ -10,7 +10,7 @@ A command-line tool to interact with CasaOS for testing and diagnosing purpose
 A command line interface for CasaOS
 
 Usage:
-  casaosctl [command]
+  casaos-cli [command]
 
 Available Commands:
   completion    Generate the autocompletion script for the specified shell
@@ -20,14 +20,14 @@ Available Commands:
   version       Show version
 
 Flags:
-  -h, --help              help for casaosctl
+  -h, --help              help for casaos-cli
   -u, --root-url string   root url of CasaOS API (default "localhost:80")
 
 Additional help topics:
-  casaosctl gateway       All gateway related commands
-  casaosctl user          All user related commands
+  casaos-cli gateway       All gateway related commands
+  casaos-cli user          All user related commands
 
-Use "casaosctl [command] --help" for more information about a command.
+Use "casaos-cli [command] --help" for more information about a command.
 ```
 
 ## Contributing
