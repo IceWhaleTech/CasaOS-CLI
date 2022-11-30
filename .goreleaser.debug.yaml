@@ -11,7 +11,6 @@ builds:
   - id: casaos-cli-amd64
     binary: build/sysroot/usr/bin/casaos-cli
     env:
-      - CGO_ENABLED=1
       - CC=x86_64-linux-gnu-gcc
     gcflags:
       - all=-N -l
@@ -20,6 +19,7 @@ builds:
     tags:
       - musl
       - netgo
+      - osusergo
     goos:
       - linux
     goarch:
@@ -27,7 +27,6 @@ builds:
   - id: casaos-cli-arm64
     binary: build/sysroot/usr/bin/casaos-cli
     env:
-      - CGO_ENABLED=1
       - CC=aarch64-linux-gnu-gcc
     gcflags:
       - all=-N -l
@@ -36,6 +35,7 @@ builds:
     tags:
       - musl
       - netgo
+      - osusergo
     goos:
       - linux
     goarch:
@@ -43,7 +43,6 @@ builds:
   - id: casaos-cli-arm-7
     binary: build/sysroot/usr/bin/casaos-cli
     env:
-      - CGO_ENABLED=1
       - CC=arm-linux-gnueabihf-gcc
     gcflags:
       - all=-N -l
@@ -52,6 +51,7 @@ builds:
     tags:
       - musl
       - netgo
+      - osusergo
     goos:
       - linux
     goarch:
