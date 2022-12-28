@@ -5,7 +5,7 @@ pkgrel=1
 pkgdesc='A command-line tool to interact with CasaOS for testing and diagnosing purpose'
 arch=('x86_64' 'aarch64' 'armv7h')
 url="https://github.com/IceWhaleTech/CasaOS-CLI"
-license=('Apache License 2.0')
+license=('APACHE')
 depends=()
 
 source_x86_64=(
@@ -25,10 +25,7 @@ sha256sums_armv7h=('44a79eeb0374ff9ec9c00cc5193adc7e897164058b82135a1a9b39a07257
 sha256sums_aarch64=('5b145a5fe78f7ad1c285a2e9fa892323b5ce9c9e4aaea3ecd0887f694d04bb36')
 
 package() {
-    cd "${srcdir}/build/sysroot/usr/bin"
-    install -Dm755 "${pkgname}" "${pkgdir}/usr/bin/${pkgname}"
-
-    cd "${srcdir}/build/sysroot/etc/bash_completion.d"
-    install -Dm644 "${pkgname}-completion" "${pkgdir}/etc/bash_completion.d/${pkgname}-completion"
+    install -Dm755 "${srcdir}/build/sysroot/usr/bin/${pkgname}" "${pkgdir}/usr/bin/${pkgname}"
+    install -Dm644 "${srcdir}/build/sysroot/etc/bash_completion.d/${pkgname}-completion" "${pkgdir}/etc/bash_completion.d/${pkgname}-completion"
 }
 
