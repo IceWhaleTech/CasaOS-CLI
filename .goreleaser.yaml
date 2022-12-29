@@ -10,9 +10,14 @@ before:
 builds:
   - id: casaos-cli-amd64
     binary: build/sysroot/usr/bin/casaos-cli
+    hooks:
+      post:
+        - upx --best --lzma -v --no-progress "{{ .Path }}"
     env:
       - CC=x86_64-linux-gnu-gcc
     ldflags:
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
       - -s
       - -w
       - -extldflags "-static"
@@ -26,9 +31,14 @@ builds:
       - amd64
   - id: casaos-cli-arm64
     binary: build/sysroot/usr/bin/casaos-cli
+    hooks:
+      post:
+        - upx --best --lzma -v --no-progress "{{ .Path }}"
     env:
       - CC=aarch64-linux-gnu-gcc
     ldflags:
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
       - -s
       - -w
       - -extldflags "-static"
@@ -42,9 +52,14 @@ builds:
       - arm64
   - id: casaos-cli-arm-7
     binary: build/sysroot/usr/bin/casaos-cli
+    hooks:
+      post:
+        - upx --best --lzma -v --no-progress "{{ .Path }}"
     env:
       - CC=arm-linux-gnueabihf-gcc
     ldflags:
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
       - -s
       - -w
       - -extldflags "-static"
