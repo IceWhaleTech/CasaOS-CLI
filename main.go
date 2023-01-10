@@ -22,7 +22,7 @@ import "github.com/IceWhaleTech/CasaOS-CLI/cmd"
 
 var (
 	// see https://goreleaser.com/cookbooks/using-main.version
-	version = "0.4.1"
+	version = "0.4.2"
 	commit  = "unknown"
 	date    = "unknown"
 )
