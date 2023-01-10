@@ -28,12 +28,16 @@ var messageBusCmd = &cobra.Command{
 const (
 	BasePathMessageBus = "v2/message_bus"
 
-	FlagMessageBusSourceID          = "source-id"
-	FlagMessageBusEventNames        = "event-names"
 	FlagMessageBusActionName        = "action-name"
 	FlagMessageBusActionNames       = "action-names"
-	FlagMessageBusProperties        = "properties"
+	FlagMessageBusEventNames        = "event-names"
 	FlagMessageBusMessageBufferSize = "message-buffer-size"
+	FlagMessageBusProperties        = "properties"
+	FlagMessageBusSourceID          = "source-id"
+	FlagMessageBusSubscribeType     = "subscribe-type"
+
+	FlagMessageBusSubscribeTypeWS  = "websocket"
+	FlagMessageBusSubscribeTypeSIO = "socketio"
 )
 
 func init() {
