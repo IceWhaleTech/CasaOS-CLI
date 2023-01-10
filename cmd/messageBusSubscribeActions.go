@@ -18,10 +18,8 @@ package cmd
 import (
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/net/websocket"
 )
 
 // messageBusSubscribeActionsCmd represents the messageBusSubscribeActions command
@@ -34,44 +32,37 @@ var messageBusSubscribeActionsCmd = &cobra.Command{
 			log.Fatalln(err.Error())
 		}
 
-		sourceID, err := cmd.Flags().GetString(FlagMessageBusSourceID)
+		subscribeType, err := cmd.Flags().GetString(FlagMessageBusSubscribeType)
 		if err != nil {
 			log.Fatalln(err.Error())
 		}
 
-		actionNames, err := cmd.Flags().GetString(FlagMessageBusActionNames)
-		if err != nil {
-			log.Fatalln(err.Error())
-		}
+		switch subscribeType {
+		case FlagMessageBusSubscribeTypeWS:
 
-		var wsURL string
-
-		if actionNames == "" {
-			wsURL = fmt.Sprintf("ws://%s/%s/action/%s", strings.TrimRight(rootURL, "/"), BasePathMessageBus, sourceID)
-		} else {
-			wsURL = fmt.Sprintf("ws://%s/%s/action/%s?names=%s", strings.TrimRight(rootURL, "/"), BasePathMessageBus, sourceID, actionNames)
-		}
-
-		bufferSize, err := cmd.Flags().GetUint(FlagMessageBusMessageBufferSize)
-		if err != nil {
-			log.Fatalln(err.Error())
-		}
-
-		ws, err := websocket.Dial(wsURL, "", "http://localhost")
-		if err != nil {
-			log.Fatalln(err.Error())
-		}
-		defer ws.Close()
-
-		log.Println("subscribed to", wsURL)
-
-		for {
-			msg := make([]byte, bufferSize)
-			n, err := ws.Read(msg)
+			sourceID, err := cmd.Flags().GetString(FlagMessageBusSourceID)
 			if err != nil {
 				log.Fatalln(err.Error())
 			}
-			log.Println(string(msg[:n]))
+
+			actionNames, err := cmd.Flags().GetString(FlagMessageBusActionNames)
+			if err != nil {
+				log.Fatalln(err.Error())
+			}
+
+			bufferSize, err := cmd.Flags().GetUint(FlagMessageBusMessageBufferSize)
+			if err != nil {
+				log.Fatalln(err.Error())
+			}
+
+			subscribeWS(rootURL, "action", sourceID, actionNames, bufferSize)
+
+		case FlagMessageBusSubscribeTypeSIO:
+
+			subscribeSIO(rootURL, "event")
+
+		default:
+			log.Fatalf("invalid subscribe type - should be either '%s' or '%s'\n", FlagMessageBusSubscribeTypeWS, FlagMessageBusSubscribeTypeSIO)
 		}
 	},
 }
@@ -79,9 +70,11 @@ var messageBusSubscribeActionsCmd = &cobra.Command{
 func init() {
 	messageBusSubscribeCmd.AddCommand(messageBusSubscribeActionsCmd)
 
-	messageBusSubscribeActionsCmd.Flags().UintP(FlagMessageBusMessageBufferSize, "m", 1024, "message buffer size")
-	messageBusSubscribeActionsCmd.Flags().StringP(FlagMessageBusSourceID, "s", "", "source id")
-	messageBusSubscribeActionsCmd.Flags().StringP(FlagMessageBusActionNames, "n", "", "action names (separated by comma)")
+	messageBusSubscribeActionsCmd.Flags().StringP(FlagMessageBusSourceID, "s", "", "['websocket' only] source id")
+	messageBusSubscribeActionsCmd.Flags().StringP(FlagMessageBusSubscribeType, "t", FlagMessageBusSubscribeTypeWS, fmt.Sprintf("subscribe type, either '%s' or '%s'", FlagMessageBusSubscribeTypeWS, FlagMessageBusSubscribeTypeSIO))
+
+	messageBusSubscribeActionsCmd.Flags().StringP(FlagMessageBusActionNames, "n", "", "['websocket' only] action names (separated by comma)")
+	messageBusSubscribeActionsCmd.Flags().UintP(FlagMessageBusMessageBufferSize, "m", 1024, "['websocket' only] message buffer size")
 
 	if err := messageBusSubscribeActionsCmd.MarkFlagRequired(FlagMessageBusSourceID); err != nil {
 		log.Fatalln(err.Error())
