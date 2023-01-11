@@ -34,10 +34,6 @@ const (
 	FlagMessageBusMessageBufferSize = "message-buffer-size"
 	FlagMessageBusProperties        = "properties"
 	FlagMessageBusSourceID          = "source-id"
-	FlagMessageBusSubscribeType     = "subscribe-type"
-
-	FlagMessageBusSubscribeTypeWS  = "websocket"
-	FlagMessageBusSubscribeTypeSIO = "socketio"
 )
 
 func init() {

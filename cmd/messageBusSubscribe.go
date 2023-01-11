@@ -16,19 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
-	"log"
-	"strings"
-
-	"github.com/IceWhaleTech/CasaOS-CLI/codegen/message_bus"
-	engineio "github.com/googollee/go-engine.io"
-	"github.com/googollee/go-engine.io/transport"
-	transportPolling "github.com/googollee/go-engine.io/transport/polling"
-	transportWS "github.com/googollee/go-engine.io/transport/websocket"
 	"github.com/spf13/cobra"
-	"golang.org/x/net/websocket"
 )
 
 // messageBusSubscribeCmd represents the messageBusSubscribe command
@@ -49,80 +37,4 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// messageBusSubscribeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-func subscribeWS(rootURL, entityType, sourceID, names string, bufferSize uint) {
-	var wsURL string
-
-	if names == "" {
-		wsURL = fmt.Sprintf("ws://%s/%s/%s/%s", strings.TrimRight(rootURL, "/"), BasePathMessageBus, entityType, sourceID)
-	} else {
-		wsURL = fmt.Sprintf("ws://%s/%s/%s/%s?names=%s", strings.TrimRight(rootURL, "/"), BasePathMessageBus, entityType, sourceID, names)
-	}
-
-	ws, err := websocket.Dial(wsURL, "", "http://localhost")
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	defer ws.Close()
-
-	log.Printf("subscribed to %s via websocket", wsURL)
-
-	for {
-		msg := make([]byte, bufferSize)
-		n, err := ws.Read(msg)
-		if err != nil {
-			log.Fatalln(err.Error())
-		}
-
-		var event message_bus.Event
-
-		if err := json.Unmarshal(msg[:n], &event); err != nil {
-			log.Println(err.Error())
-		}
-
-		output, err := json.MarshalIndent(event, "", "  ")
-		if err != nil {
-			log.Println(err.Error())
-		}
-		log.Println(string(output))
-	}
-}
-
-func subscribeSIO(rootURL, entityType string) {
-	dialer := engineio.Dialer{
-		Transports: []transport.Transport{
-			transportWS.Default,
-			transportPolling.Default,
-		},
-	}
-
-	sioURL := fmt.Sprintf("http://%s/%s/%s", strings.TrimRight(rootURL, "/"), BasePathMessageBus, entityType)
-	conn, err := dialer.Dial(sioURL, nil)
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-	defer conn.Close()
-
-	log.Printf("subscribed to %s via socketio", sioURL)
-
-	for {
-		_, r, err := conn.NextReader()
-		if err != nil {
-			log.Println(err.Error())
-			break
-		}
-		b, err := io.ReadAll(r)
-		if err != nil {
-			r.Close()
-			log.Println(err.Error())
-			break
-		}
-		if err := r.Close(); err != nil {
-			log.Println(err.Error())
-			break
-		}
-
-		fmt.Println(string(b))
-	}
 }
