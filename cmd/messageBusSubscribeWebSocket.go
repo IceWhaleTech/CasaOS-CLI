@@ -43,13 +43,13 @@ func init() {
 	}
 }
 
-func subscribeWS(rootURL, entityType, sourceID, names string, bufferSize uint) {
+func subscribeWS(rootURL, messageType, sourceID, names string, bufferSize uint) {
 	var wsURL string
 
 	if names == "" {
-		wsURL = fmt.Sprintf("ws://%s/%s/%s/%s", strings.TrimRight(rootURL, "/"), BasePathMessageBus, entityType, sourceID)
+		wsURL = fmt.Sprintf("ws://%s/%s/%s/%s", strings.TrimRight(rootURL, "/"), BasePathMessageBus, messageType, sourceID)
 	} else {
-		wsURL = fmt.Sprintf("ws://%s/%s/%s/%s?names=%s", strings.TrimRight(rootURL, "/"), BasePathMessageBus, entityType, sourceID, names)
+		wsURL = fmt.Sprintf("ws://%s/%s/%s/%s?names=%s", strings.TrimRight(rootURL, "/"), BasePathMessageBus, messageType, sourceID, names)
 	}
 
 	ws, err := websocket.Dial(wsURL, "", "http://localhost")
