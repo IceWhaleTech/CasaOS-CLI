@@ -70,7 +70,7 @@ var messageBusListActionTypesCmd = &cobra.Command{
 				propertyTypes = append(propertyTypes, propertyType.Name)
 			}
 
-			fmt.Fprintf(w, "%s\t%s\t%s\n", actionType.SourceID, actionType.Name, strings.Join(propertyTypes, ","))
+			fmt.Fprintf(w, "%s\t%s\t{%s}\n", actionType.SourceID, actionType.Name, strings.Join(propertyTypes, ", "))
 		}
 	},
 }
