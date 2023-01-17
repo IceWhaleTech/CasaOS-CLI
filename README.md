@@ -1,6 +1,6 @@
 # CasaOS-CLI
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/IceWhaleTech/CasaOS-CLI.svg)](https://pkg.go.dev/github.com/IceWhaleTech/CasaOS-CLI) [![Go Report Card](https://goreportcard.com/badge/github.com/IceWhaleTech/CasaOS-CLI)](https://goreportcard.com/report/github.com/IceWhaleTech/CasaOS-CLI) [![goreleaser](https://github.com/IceWhaleTech/CasaOS-CLI/actions/workflows/release.yml/badge.svg)](https://github.com/IceWhaleTech/CasaOS-CLI/actions/workflows/release.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/IceWhaleTech/CasaOS-CLI.svg)](https://pkg.go.dev/github.com/IceWhaleTech/CasaOS-CLI) [![Go Report Card](https://goreportcard.com/badge/github.com/IceWhaleTech/CasaOS-CLI)](https://goreportcard.com/report/github.com/IceWhaleTech/CasaOS-CLI) [![goreleaser](https://github.com/IceWhaleTech/CasaOS-CLI/actions/workflows/release.yml/badge.svg)](https://github.com/IceWhaleTech/CasaOS-CLI/actions/workflows/release.yml) [![codecov](https://codecov.io/github/IceWhaleTech/CasaOS-CLI/branch/main/graph/badge.svg?token=XHM6PM8C0K)](https://codecov.io/github/IceWhaleTech/CasaOS-CLI)
 
 A command-line tool to interact with CasaOS for testing and diagnosing purpose
 
