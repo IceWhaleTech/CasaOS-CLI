@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 IceWhaleTech
+Copyright © 2023 IceWhaleTech
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,24 +23,23 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/IceWhaleTech/CasaOS-CLI/codegen/app_management"
 	"github.com/spf13/cobra"
-
-	"github.com/IceWhaleTech/CasaOS-CLI/codegen/message_bus"
 )
 
-// messageBusListEventTypesCmd represents the messageBusListEventTypes command
-var messageBusListEventTypesCmd = &cobra.Command{
-	Use:   "event-types",
-	Short: "list event types registered in message bus",
+// appManagementListLocalCmd represents the appManagementListLocal command
+var appManagementListLocalCmd = &cobra.Command{
+	Use:   "local",
+	Short: "list locally installed apps",
 	Run: func(cmd *cobra.Command, args []string) {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
 		if err != nil {
 			log.Fatalln(err.Error())
 		}
 
-		url := fmt.Sprintf("http://%s/%s", rootURL, BasePathMessageBus)
+		url := fmt.Sprintf("http://%s/%s", rootURL, BasePathAppManagement)
 
-		client, err := message_bus.NewClientWithResponses(url)
+		client, err := app_management.NewClientWithResponses(url)
 		if err != nil {
 			log.Fatalln(err.Error())
 		}
@@ -48,7 +47,7 @@ var messageBusListEventTypesCmd = &cobra.Command{
 		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
 		defer cancel()
 
-		response, err := client.GetEventTypesWithResponse(ctx)
+		response, err := client.MyComposeAppListWithResponse(ctx)
 		if err != nil {
 			log.Fatalln(err.Error())
 		}
@@ -57,37 +56,35 @@ var messageBusListEventTypesCmd = &cobra.Command{
 			log.Fatalln("unexpected status code", response.Status())
 		}
 
-		if response.JSON200 == nil || len(*response.JSON200) == 0 {
+		if response.JSON200.Data == nil || len(*response.JSON200.Data) == 0 {
 			return
 		}
 
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 3, ' ', 0)
 		defer w.Flush()
 
-		fmt.Fprintln(w, "SOURCE ID\tEVENT NAME\tPROPERTY TYPES")
-		fmt.Fprintln(w, "---------\t----------\t--------------")
+		fmt.Fprintln(w, "ID\tSERVICES")
+		fmt.Fprintln(w, "--\t--------")
 
-		for _, eventType := range *response.JSON200 {
-			propertyTypes := make([]string, 0)
-			for _, propertyType := range eventType.PropertyTypeList {
-				propertyTypes = append(propertyTypes, propertyType.Name)
-			}
-
-			fmt.Fprintf(w, "%s\t%s\t{%s}\n", eventType.SourceID, eventType.Name, strings.Join(propertyTypes, ", "))
+		for id, app := range *response.JSON200.Data {
+			fmt.Fprintf(w, "%s\t%s\n",
+				id,
+				strings.Join(app.Compose.ServiceNames(), ", "),
+			)
 		}
 	},
 }
 
 func init() {
-	messageBusListCmd.AddCommand(messageBusListEventTypesCmd)
+	appManagementListCmd.AddCommand(appManagementListLocalCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// messageBusListEventTypesCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// appManagementListLocalCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// messageBusListEventTypesCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// appManagementListLocalCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
