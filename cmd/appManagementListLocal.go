@@ -17,13 +17,14 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 	"text/tabwriter"
 
 	"github.com/IceWhaleTech/CasaOS-CLI/codegen/app_management"
+	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 )
 
@@ -47,29 +48,84 @@ var appManagementListLocalCmd = &cobra.Command{
 		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
 		defer cancel()
 
-		response, err := client.MyComposeAppListWithResponse(ctx)
+		response, err := client.MyComposeAppList(ctx)
 		if err != nil {
 			log.Fatalln(err.Error())
 		}
+		defer response.Body.Close()
 
-		if response.StatusCode() != http.StatusOK {
-			log.Fatalln("unexpected status code", response.Status())
+		if response.StatusCode != http.StatusOK {
+			log.Fatalln("unexpected status code", response.Status)
 		}
 
-		if response.JSON200.Data == nil || len(*response.JSON200.Data) == 0 {
-			return
+		dec := json.NewDecoder(response.Body)
+
+		var body map[string]interface{}
+		if err := dec.Decode(&body); err != nil {
+			log.Fatalln(err.Error())
+		}
+
+		_, ok := body["data"]
+		if !ok {
+			log.Fatalln("unexpected response body")
+		}
+
+		data, ok := body["data"].(map[string]interface{})
+		if !ok {
+			log.Fatalln("unexpected response body")
 		}
 
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 3, ' ', 0)
 		defer w.Flush()
 
-		fmt.Fprintln(w, "ID\tSERVICES")
-		fmt.Fprintln(w, "--\t--------")
+		fmt.Fprintln(w, "ID\tDESCRIPTION")
+		fmt.Fprintln(w, "--\t-----------")
 
-		for id, app := range *response.JSON200.Data {
+		for id, app := range data {
+			appMap, ok := app.(map[string]interface{})
+			if !ok {
+				log.Fatalln("unexpected response body")
+			}
+
+			_, ok = appMap["store_info"]
+			if !ok {
+				log.Fatalln("unexpected response body")
+			}
+
+			composeAppStoreInfo, ok := appMap["store_info"].(map[string]interface{})
+			if !ok {
+				log.Fatalln("unexpected response body")
+			}
+
+			_, ok = composeAppStoreInfo["main_app"]
+			if !ok {
+				log.Fatalln("unexpected response body")
+			}
+
+			mainApp, ok := composeAppStoreInfo["main_app"].(string)
+			if !ok {
+				log.Fatalln("unexpected response body")
+			}
+
+			_, ok = composeAppStoreInfo["apps"]
+			if !ok {
+				log.Fatalln("unexpected response body")
+			}
+
+			apps, ok := composeAppStoreInfo["apps"].(map[string]interface{})
+			if !ok {
+				log.Fatalln("unexpected response body")
+			}
+
+			var appStoreInfoMap map[string]app_management.AppStoreInfo
+
+			if err := mapstructure.Decode(apps, &appStoreInfoMap); err != nil {
+				log.Fatalln(err.Error())
+			}
+
 			fmt.Fprintf(w, "%s\t%s\n",
 				id,
-				strings.Join(app.Compose.ServiceNames(), ", "),
+				appStoreInfoMap[mainApp].Description["en_US"][0:60]+"...",
 			)
 		}
 	},
