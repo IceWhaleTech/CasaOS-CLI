@@ -19,7 +19,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"text/tabwriter"
 
@@ -32,17 +31,17 @@ import (
 var appManagementListLocalCmd = &cobra.Command{
 	Use:   "local",
 	Short: "list locally installed apps",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
 		if err != nil {
-			log.Fatalln(err.Error())
+			return err
 		}
 
 		url := fmt.Sprintf("http://%s/%s", rootURL, BasePathAppManagement)
 
 		client, err := app_management.NewClientWithResponses(url)
 		if err != nil {
-			log.Fatalln(err.Error())
+			return err
 		}
 
 		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
@@ -50,42 +49,41 @@ var appManagementListLocalCmd = &cobra.Command{
 
 		response, err := client.MyComposeAppList(ctx)
 		if err != nil {
-			log.Fatalln(err.Error())
+			return err
 		}
 		defer response.Body.Close()
 
 		if response.StatusCode != http.StatusOK {
-			log.Fatalln("unexpected status code", response.Status)
+			return fmt.Errorf("unexpected status code %s", response.Status)
 		}
 
 		// get mapstruct of response body - can't unmarshal directly due to https://github.com/compose-spec/compose-go/issues/353
-		dec := json.NewDecoder(response.Body)
-
 		var body map[string]interface{}
-		if err := dec.Decode(&body); err != nil {
-			log.Fatalln(err.Error())
+
+		if err := json.NewDecoder(response.Body).Decode(&body); err != nil {
+			return err
 		}
 
 		_, ok := body["data"]
 		if !ok {
-			log.Fatalln("unexpected response body")
+			return fmt.Errorf("body does not contain `data`")
 		}
 
 		data, ok := body["data"].(map[string]interface{})
 		if !ok {
-			log.Fatalln("unexpected response body")
+			return fmt.Errorf("data is not a map[string]interface")
 		}
 
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 3, ' ', 0)
 		defer w.Flush()
 
-		fmt.Fprintln(w, "ID\tDESCRIPTION")
-		fmt.Fprintln(w, "--\t-----------")
+		fmt.Fprintln(w, "APPID\tDESCRIPTION")
+		fmt.Fprintln(w, "-----\t-----------")
 
 		for id, app := range data {
 			mainApp, appList, err := appList(app)
 			if err != nil {
-				log.Fatalln(err.Error())
+				return err
 			}
 
 			fmt.Fprintf(w, "%s\t%s\n",
@@ -93,6 +91,8 @@ var appManagementListLocalCmd = &cobra.Command{
 				appList[mainApp].Description["en_US"][0:60]+"...",
 			)
 		}
+
+		return nil
 	},
 }
 
