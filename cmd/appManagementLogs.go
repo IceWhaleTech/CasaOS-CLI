@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -65,7 +66,12 @@ var appManagementLogsCmd = &cobra.Command{
 		}
 
 		if response.StatusCode() != http.StatusOK {
-			return fmt.Errorf("unexpected status code %s", response.Status())
+			var baseResponse app_management.BaseResponse
+			if err := json.Unmarshal(response.Body, &baseResponse); err != nil {
+				return fmt.Errorf("%s - %s", response.Status(), response.Body)
+			}
+
+			return fmt.Errorf("%s - %s", response.Status(), *baseResponse.Message)
 		}
 
 		fmt.Printf("(showing last %d lines)\n", lines)

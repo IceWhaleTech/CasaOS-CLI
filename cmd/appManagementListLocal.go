@@ -19,6 +19,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"text/tabwriter"
 
@@ -53,14 +54,23 @@ var appManagementListLocalCmd = &cobra.Command{
 		}
 		defer response.Body.Close()
 
+		buf, err := io.ReadAll(response.Body)
+		if err != nil {
+			return err
+		}
+
 		if response.StatusCode != http.StatusOK {
-			return fmt.Errorf("unexpected status code %s", response.Status)
+			var baseResponse app_management.BaseResponse
+			if err := json.Unmarshal(buf, &baseResponse); err != nil {
+				return fmt.Errorf("%s - %s", response.Status, response.Body)
+			}
+
+			return fmt.Errorf("%s - %s", response.Status, *baseResponse.Message)
 		}
 
 		// get mapstruct of response body - can't unmarshal directly due to https://github.com/compose-spec/compose-go/issues/353
 		var body map[string]interface{}
-
-		if err := json.NewDecoder(response.Body).Decode(&body); err != nil {
+		if err := json.Unmarshal(buf, &body); err != nil {
 			return err
 		}
 
