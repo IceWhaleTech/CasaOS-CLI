@@ -58,6 +58,7 @@ var appManagementListLocalCmd = &cobra.Command{
 			log.Fatalln("unexpected status code", response.Status)
 		}
 
+		// get mapstruct of response body - can't unmarshal directly due to https://github.com/compose-spec/compose-go/issues/353
 		dec := json.NewDecoder(response.Body)
 
 		var body map[string]interface{}
@@ -82,50 +83,14 @@ var appManagementListLocalCmd = &cobra.Command{
 		fmt.Fprintln(w, "--\t-----------")
 
 		for id, app := range data {
-			appMap, ok := app.(map[string]interface{})
-			if !ok {
-				log.Fatalln("unexpected response body")
-			}
-
-			_, ok = appMap["store_info"]
-			if !ok {
-				log.Fatalln("unexpected response body")
-			}
-
-			composeAppStoreInfo, ok := appMap["store_info"].(map[string]interface{})
-			if !ok {
-				log.Fatalln("unexpected response body")
-			}
-
-			_, ok = composeAppStoreInfo["main_app"]
-			if !ok {
-				log.Fatalln("unexpected response body")
-			}
-
-			mainApp, ok := composeAppStoreInfo["main_app"].(string)
-			if !ok {
-				log.Fatalln("unexpected response body")
-			}
-
-			_, ok = composeAppStoreInfo["apps"]
-			if !ok {
-				log.Fatalln("unexpected response body")
-			}
-
-			apps, ok := composeAppStoreInfo["apps"].(map[string]interface{})
-			if !ok {
-				log.Fatalln("unexpected response body")
-			}
-
-			var appStoreInfoMap map[string]app_management.AppStoreInfo
-
-			if err := mapstructure.Decode(apps, &appStoreInfoMap); err != nil {
+			mainApp, appList, err := appList(app)
+			if err != nil {
 				log.Fatalln(err.Error())
 			}
 
 			fmt.Fprintf(w, "%s\t%s\n",
 				id,
-				appStoreInfoMap[mainApp].Description["en_US"][0:60]+"...",
+				appList[mainApp].Description["en_US"][0:60]+"...",
 			)
 		}
 	},
@@ -143,4 +108,49 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// appManagementListLocalCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func appList(composeApp interface{}) (string, map[string]app_management.AppStoreInfo, error) {
+	composeAppMapStruct, ok := composeApp.(map[string]interface{})
+	if !ok {
+		return "", nil, fmt.Errorf("app is not a map[string]interface{}")
+	}
+
+	_, ok = composeAppMapStruct["store_info"]
+	if !ok {
+		return "", nil, fmt.Errorf("app does not have \"store_info\"")
+	}
+
+	composeAppStoreInfo, ok := composeAppMapStruct["store_info"].(map[string]interface{})
+	if !ok {
+		return "", nil, fmt.Errorf("app[\"store_info\"] is not a map[string]interface{}")
+	}
+
+	_, ok = composeAppStoreInfo["main_app"]
+	if !ok {
+		return "", nil, fmt.Errorf("app[\"store_info\"] does not have \"main_app\"")
+	}
+
+	mainApp, ok := composeAppStoreInfo["main_app"].(string)
+	if !ok {
+		return "", nil, fmt.Errorf("app[\"store_info\"][\"main_app\"] is not a string")
+	}
+
+	_, ok = composeAppStoreInfo["apps"]
+	if !ok {
+		return "", nil, fmt.Errorf("app[\"store_info\"] does not have \"apps\"")
+	}
+
+	appListMapStruct, ok := composeAppStoreInfo["apps"].(map[string]interface{})
+	if !ok {
+		return "", nil, fmt.Errorf("app[\"store_info\"][\"apps\"] is not a map[string]interface{}")
+	}
+
+	var appList map[string]app_management.AppStoreInfo
+
+	if err := mapstructure.Decode(appListMapStruct, &appList); err != nil {
+		return "", nil, err
+	}
+
+	return mainApp, appList, nil
 }
