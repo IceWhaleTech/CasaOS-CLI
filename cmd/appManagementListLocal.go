@@ -87,8 +87,8 @@ var appManagementListLocalCmd = &cobra.Command{
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 3, ' ', 0)
 		defer w.Flush()
 
-		fmt.Fprintln(w, "APPID\tDESCRIPTION")
-		fmt.Fprintln(w, "-----\t-----------")
+		fmt.Fprintln(w, "APPID\tSTATUS\tDESCRIPTION")
+		fmt.Fprintln(w, "-----\t------\t-----------")
 
 		for id, app := range data {
 			mainApp, appList, err := appList(app)
@@ -96,9 +96,22 @@ var appManagementListLocalCmd = &cobra.Command{
 				return err
 			}
 
-			fmt.Fprintf(w, "%s\t%s\n",
+			statusResponse, err := client.ComposeAppStatusWithResponse(ctx, id)
+			if err != nil {
+				return err
+			}
+
+			if statusResponse.StatusCode() != http.StatusOK {
+				var baseResponse app_management.BaseResponse
+				if err := mapstructure.Decode(statusResponse.JSON200, &baseResponse); err != nil {
+					return fmt.Errorf("%s - %s", statusResponse.Status(), statusResponse.Body)
+				}
+			}
+
+			fmt.Fprintf(w, "%s\t%s\t%s\n",
 				id,
-				appList[mainApp].Description["en_US"][0:60]+"...",
+				*statusResponse.JSON200.Data,
+				appList[mainApp].Description["en_US"][0:78]+"...",
 			)
 		}
 
