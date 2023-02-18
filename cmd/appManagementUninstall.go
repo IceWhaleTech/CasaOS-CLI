@@ -19,34 +19,23 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/IceWhaleTech/CasaOS-CLI/codegen/app_management"
 	"github.com/spf13/cobra"
 )
 
-const (
-	FlagAppManagementLogsLines = "lines"
-)
-
-// appManagementLogsCmd represents the appManagementLogs command
-var appManagementLogsCmd = &cobra.Command{
-	Use:   "logs <appid>",
-	Short: "Retrieve logs of a compose app",
-	Args:  cobra.ExactArgs(1),
+// appManagementUninstallCmd represents the appManagementUninstall command
+var appManagementUninstallCmd = &cobra.Command{
+	Use:     "uninstall <appid>",
+	Aliases: []string{"remove", "delete", "down"},
+	Short:   "uninstall a compose app",
+	Args:    cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
 		if err != nil {
 			return err
-		}
-
-		lines, err := cmd.Flags().GetInt(FlagAppManagementLogsLines)
-		if err != nil {
-			return err
-		}
-
-		if lines < 0 {
-			return fmt.Errorf("lines must be greater than 0")
 		}
 
 		url := fmt.Sprintf("http://%s/%s", rootURL, BasePathAppManagement)
@@ -60,7 +49,7 @@ var appManagementLogsCmd = &cobra.Command{
 		defer cancel()
 
 		appID := cmd.Flags().Arg(0)
-		response, err := client.ComposeAppLogsWithResponse(ctx, appID, &app_management.ComposeAppLogsParams{Lines: &lines})
+		response, err := client.UninstallComposeAppWithResponse(ctx, appID)
 		if err != nil {
 			return err
 		}
@@ -74,26 +63,22 @@ var appManagementLogsCmd = &cobra.Command{
 			return fmt.Errorf("%s - %s", response.Status(), *baseResponse.Message)
 		}
 
-		fmt.Printf("(showing last %d lines)\n", lines)
-		fmt.Println("...")
-		fmt.Println(*response.JSON200.Data)
+		log.Println(*response.JSON200.Message)
 
 		return nil
 	},
 }
 
 func init() {
-	appManagementCmd.AddCommand(appManagementLogsCmd)
-
-	appManagementLogsCmd.Flags().IntP(FlagAppManagementLogsLines, "l", 1000, "Follow log output")
+	appManagementCmd.AddCommand(appManagementUninstallCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// appManagementLogsCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// appManagementUninstallCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// appManagementLogsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// appManagementUninstallCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

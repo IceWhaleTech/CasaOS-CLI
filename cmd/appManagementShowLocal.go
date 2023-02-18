@@ -32,7 +32,7 @@ import (
 
 // appManagementShowLocalCmd represents the appManagementShowLocal command
 var appManagementShowLocalCmd = &cobra.Command{
-	Use:   "local [appid]",
+	Use:   "local <appid>",
 	Short: "show information of a locally installed app",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {

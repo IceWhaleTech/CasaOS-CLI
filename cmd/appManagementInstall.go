@@ -33,8 +33,9 @@ const (
 
 // appManagementInstallCmd represents the appManagementInstall command
 var appManagementInstallCmd = &cobra.Command{
-	Use:   "install",
-	Short: "install a compose app",
+	Use:     "install",
+	Aliases: []string{"add", "create", "up"},
+	Short:   "install a compose app",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
 		if err != nil {
