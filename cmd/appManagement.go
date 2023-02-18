@@ -26,8 +26,9 @@ const (
 
 // appManagementCmd represents the appManagement command
 var appManagementCmd = &cobra.Command{
-	Use:   "app-management",
-	Short: "A app management and store related commands",
+	Use:     "app-management",
+	Short:   "All compose app management and store related commands",
+	GroupID: RootGroupID,
 }
 
 const (

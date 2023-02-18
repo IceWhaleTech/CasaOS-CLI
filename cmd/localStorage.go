@@ -21,8 +21,9 @@ import (
 
 // localStorageCmd represents the localStorage command
 var localStorageCmd = &cobra.Command{
-	Use:   "local-storage",
-	Short: "All local storage related commands",
+	Use:     "local-storage",
+	Short:   "All local storage related commands",
+	GroupID: RootGroupID,
 }
 
 const (
