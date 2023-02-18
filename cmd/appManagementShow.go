@@ -22,7 +22,7 @@ import (
 // appManagementShowCmd represents the appManagementShow command
 var appManagementShowCmd = &cobra.Command{
 	Use:   "show",
-	Short: "show information of a specific app",
+	Short: "show information of a specific compose app",
 }
 
 func init() {
