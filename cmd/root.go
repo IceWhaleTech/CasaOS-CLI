@@ -25,6 +25,7 @@ import (
 const (
 	FlagRootURL    = "root-url"
 	DefaultTimeout = 10 * time.Second
+	RootGroupID    = "casaos-cli"
 )
 
 var (
@@ -54,4 +55,8 @@ func Execute() {
 func init() {
 	// TODO - read from /etc/casaos/gateway.ini
 	rootCmd.PersistentFlags().StringP(FlagRootURL, "u", "localhost:80", "root url of CasaOS API")
+	rootCmd.AddGroup(&cobra.Group{
+		ID:    RootGroupID,
+		Title: "Services",
+	})
 }

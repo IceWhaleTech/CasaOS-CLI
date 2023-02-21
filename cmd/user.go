@@ -21,8 +21,9 @@ import (
 
 // userCmd represents the user command
 var userCmd = &cobra.Command{
-	Use:   "user",
-	Short: "All user related commands",
+	Use:     "user",
+	Short:   "All user related commands",
+	GroupID: RootGroupID,
 }
 
 func init() {

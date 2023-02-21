@@ -12,20 +12,23 @@ A command line interface for CasaOS
 Usage:
   casaos-cli [command]
 
-Available Commands:
-  completion    Generate the autocompletion script for the specified shell
-  help          Help about any command
-  local-storage All local storage related commands
-  message-bus   All message bus related commands
-  version       Show version
+Services
+  app-management All compose app management and store related commands
+  local-storage  All local storage related commands
+  message-bus    All message bus related commands
+
+Additional Commands:
+  completion     Generate the autocompletion script for the specified shell
+  help           Help about any command
+  version        Show version
 
 Flags:
   -h, --help              help for casaos-cli
   -u, --root-url string   root url of CasaOS API (default "localhost:80")
 
 Additional help topics:
-  casaos-cli gateway       All gateway related commands
-  casaos-cli user          All user related commands
+  casaos-cli gateway        All gateway related commands
+  casaos-cli user           All user related commands
 
 Use "casaos-cli [command] --help" for more information about a command.
 ```

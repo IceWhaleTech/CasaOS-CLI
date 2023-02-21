@@ -21,8 +21,9 @@ import (
 
 // messageBusCmd represents the messageBus command
 var messageBusCmd = &cobra.Command{
-	Use:   "message-bus",
-	Short: "All message bus related commands",
+	Use:     "message-bus",
+	Short:   "All message bus related commands",
+	GroupID: RootGroupID,
 }
 
 const (

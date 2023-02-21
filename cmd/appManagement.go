@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 IceWhaleTech
+Copyright © 2023 IceWhaleTech
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,32 +19,32 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// localStorageCmd represents the localStorage command
-var localStorageCmd = &cobra.Command{
-	Use:     "local-storage",
-	Short:   "All local storage related commands",
+const (
+	FlagAppManagementYAML     = "yaml"
+	FlagAppManagementUseColor = "color"
+)
+
+// appManagementCmd represents the appManagement command
+var appManagementCmd = &cobra.Command{
+	Use:     "app-management",
+	Short:   "All compose app management and store related commands",
 	GroupID: RootGroupID,
 }
 
 const (
-	BasePathLocalStorage = "v2/local_storage"
-
-	FlagLocalStorageFSType            = "fstype"
-	FlagLocalStorageMountPoint        = "mount-point"
-	FlagLocalStorageSourceBasePath    = "source-base-path"
-	FlagLocalStorageSourceVolumeUUIDs = "source-volume-uuids"
+	BasePathAppManagement = "v2/app_management"
 )
 
 func init() {
-	rootCmd.AddCommand(localStorageCmd)
+	rootCmd.AddCommand(appManagementCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// localStorageCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// appManagementCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// localStorageCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// appManagementCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

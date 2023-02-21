@@ -57,13 +57,15 @@ var localStorageListMergesCmd = &cobra.Command{
 			log.Fatalln("unexpected status code", response.Status())
 		}
 
+		if response.JSON200.Data == nil || len(*response.JSON200.Data) == 0 {
+			return
+		}
+
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 3, ' ', 0)
 		defer w.Flush()
 
-		if len(*response.JSON200.Data) > 0 {
-			fmt.Fprintln(w, "FSTYPE\tMOUNT_POINT\tSOURCE_BASE_PATH\tSOURCE_VOLUME_UUIDS\tCREATED_AT\tUPDATED_AT")
-			fmt.Fprintln(w, "------\t-----------\t----------------\t-------------------\t----------\t----------")
-		}
+		fmt.Fprintln(w, "FSTYPE\tMOUNT_POINT\tSOURCE_BASE_PATH\tSOURCE_VOLUME_UUIDS\tCREATED_AT\tUPDATED_AT")
+		fmt.Fprintln(w, "------\t-----------\t----------------\t-------------------\t----------\t----------")
 
 		for _, merge := range *response.JSON200.Data {
 			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n",

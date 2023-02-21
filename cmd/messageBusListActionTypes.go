@@ -56,13 +56,15 @@ var messageBusListActionTypesCmd = &cobra.Command{
 			log.Fatalln("unexpected status code", response.Status())
 		}
 
+		if response.JSON200 == nil || len(*response.JSON200) == 0 {
+			return
+		}
+
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 3, ' ', 0)
 		defer w.Flush()
 
-		if len(*response.JSON200) == 0 {
-			fmt.Fprintln(w, "SOURCE ID\tACTION NAME\tPROPERTY TYPES")
-			fmt.Fprintln(w, "---------\t----------\t--------------")
-		}
+		fmt.Fprintln(w, "SOURCE ID\tACTION NAME\tPROPERTY TYPES")
+		fmt.Fprintln(w, "---------\t----------\t--------------")
 
 		for _, actionType := range *response.JSON200 {
 			propertyTypes := make([]string, 0)

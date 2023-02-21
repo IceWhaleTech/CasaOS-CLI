@@ -21,8 +21,9 @@ import (
 
 // gatewayCmd represents the gateway command
 var gatewayCmd = &cobra.Command{
-	Use:   "gateway",
-	Short: "All gateway related commands",
+	Use:     "gateway",
+	Short:   "All gateway related commands",
+	GroupID: RootGroupID,
 }
 
 func init() {
