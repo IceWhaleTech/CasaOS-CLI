@@ -1,6 +1,6 @@
 //go:generate bash -c "mkdir -p codegen/local_storage && go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.12.4 -generate types,client -package local_storage https://raw.githubusercontent.com/IceWhaleTech/CasaOS-LocalStorage/main/api/local_storage/openapi.yaml > codegen/local_storage/api.go"
 //go:generate bash -c "mkdir -p codegen/message_bus && go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.12.4 -generate types,client -package message_bus https://raw.githubusercontent.com/IceWhaleTech/CasaOS-MessageBus/main/api/message_bus/openapi.yaml > codegen/message_bus/api.go"
-//go:generate bash -c "mkdir -p codegen/app_management && go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.12.4 -generate types,client -package app_management https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppManagement/compose-apps/api/app_management/openapi.yaml > codegen/app_management/api.go"
+//go:generate bash -c "mkdir -p codegen/app_management && go run github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.12.4 -generate types,client -package app_management https://raw.githubusercontent.com/IceWhaleTech/CasaOS-AppManagement/main/api/app_management/openapi.yaml > codegen/app_management/api.go"
 
 /*
 Copyright © 2022 IceWhaleTech
