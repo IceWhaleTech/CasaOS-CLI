@@ -55,4 +55,4 @@ jobs:
             dist/checksums.txt:/IceWhaleTech/CasaOS-CLI/releases/download/${{ steps.get_version.outputs.VERSION }}/checksums.txt
             dist/linux-amd64-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz:/IceWhaleTech/CasaOS-CLI/releases/download/${{ steps.get_version.outputs.VERSION }}/linux-amd64-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz
             dist/linux-arm64-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz:/IceWhaleTech/CasaOS-CLI/releases/download/${{ steps.get_version.outputs.VERSION }}/linux-arm64-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz
-            dist/linux-arm-7-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz:/IceWhaleTech/CasaOS-CLI/releases/download/${{ steps.get_version.outputs.VERSION }}/linux-amd-7-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz
+            dist/linux-arm-7-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz:/IceWhaleTech/CasaOS-CLI/releases/download/${{ steps.get_version.outputs.VERSION }}/linux-arm-7-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz
