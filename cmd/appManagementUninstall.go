@@ -26,6 +26,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const FlagAppManagementUninstallRemoveConfig = "remove-config"
+
 // appManagementUninstallCmd represents the appManagementUninstall command
 var appManagementUninstallCmd = &cobra.Command{
 	Use:     "uninstall <appid>",
@@ -34,6 +36,11 @@ var appManagementUninstallCmd = &cobra.Command{
 	Args:    cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
+		if err != nil {
+			return err
+		}
+
+		removeConfigFolder, err := cmd.Flags().GetBool(FlagAppManagementUninstallRemoveConfig)
 		if err != nil {
 			return err
 		}
@@ -49,7 +56,9 @@ var appManagementUninstallCmd = &cobra.Command{
 		defer cancel()
 
 		appID := cmd.Flags().Arg(0)
-		response, err := client.UninstallComposeAppWithResponse(ctx, appID)
+		response, err := client.UninstallComposeAppWithResponse(ctx, appID, &app_management.UninstallComposeAppParams{
+			DeleteConfigFolder: &removeConfigFolder,
+		})
 		if err != nil {
 			return err
 		}
@@ -71,6 +80,8 @@ var appManagementUninstallCmd = &cobra.Command{
 
 func init() {
 	appManagementCmd.AddCommand(appManagementUninstallCmd)
+
+	appManagementUninstallCmd.Flags().BoolP(FlagAppManagementUninstallRemoveConfig, "r", true, "remove config folder")
 
 	// Here you will define your flags and configuration settings.
 
