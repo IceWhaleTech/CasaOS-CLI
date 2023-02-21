@@ -32,7 +32,7 @@ const (
 // appManagementLogsCmd represents the appManagementLogs command
 var appManagementLogsCmd = &cobra.Command{
 	Use:   "logs <appid>",
-	Short: "Retrieve logs of a compose app",
+	Short: "retrieve logs of a compose app",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
