@@ -28,9 +28,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// appManagementListLocalCmd represents the appManagementListLocal command
-var appManagementListLocalCmd = &cobra.Command{
-	Use:   "local",
+// appManagementListAppsCmd represents the appManagementListApps command
+var appManagementListAppsCmd = &cobra.Command{
+	Use:   "apps",
 	Short: "list locally installed apps",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
@@ -120,17 +120,17 @@ var appManagementListLocalCmd = &cobra.Command{
 }
 
 func init() {
-	appManagementListCmd.AddCommand(appManagementListLocalCmd)
+	appManagementListCmd.AddCommand(appManagementListAppsCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// appManagementListLocalCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// appManagementListAppsCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// appManagementListLocalCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// appManagementListAppsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 func appList(composeApp interface{}) (string, map[string]app_management.AppStoreInfo, error) {
