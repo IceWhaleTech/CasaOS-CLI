@@ -111,7 +111,7 @@ var appManagementListAppsCmd = &cobra.Command{
 			fmt.Fprintf(w, "%s\t%s\t%s\n",
 				id,
 				*statusResponse.JSON200.Data,
-				appList[mainApp].Description["en_US"][0:78]+"...",
+				trim(appList[mainApp].Description["en_US"], 78),
 			)
 		}
 
