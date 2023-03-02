@@ -23,10 +23,11 @@ import (
 	"net/http"
 
 	"github.com/IceWhaleTech/CasaOS-CLI/codegen/app_management"
+	"github.com/IceWhaleTech/CasaOS-Common/utils"
 	"github.com/spf13/cobra"
 )
 
-const FlagAppManagementUninstallRemoveConfig = "remove-config"
+const FlagAppManagementUninstallNoRemoveConfig = "no-remove-config"
 
 // appManagementUninstallCmd represents the appManagementUninstall command
 var appManagementUninstallCmd = &cobra.Command{
@@ -40,7 +41,7 @@ var appManagementUninstallCmd = &cobra.Command{
 			return err
 		}
 
-		removeConfigFolder, err := cmd.Flags().GetBool(FlagAppManagementUninstallRemoveConfig)
+		noRemoveConfigFolder, err := cmd.Flags().GetBool(FlagAppManagementUninstallNoRemoveConfig)
 		if err != nil {
 			return err
 		}
@@ -57,7 +58,7 @@ var appManagementUninstallCmd = &cobra.Command{
 
 		appID := cmd.Flags().Arg(0)
 		response, err := client.UninstallComposeAppWithResponse(ctx, appID, &app_management.UninstallComposeAppParams{
-			DeleteConfigFolder: &removeConfigFolder,
+			DeleteConfigFolder: utils.Ptr(!noRemoveConfigFolder),
 		})
 		if err != nil {
 			return err
@@ -81,7 +82,7 @@ var appManagementUninstallCmd = &cobra.Command{
 func init() {
 	appManagementCmd.AddCommand(appManagementUninstallCmd)
 
-	appManagementUninstallCmd.Flags().BoolP(FlagAppManagementUninstallRemoveConfig, "r", true, "remove config folder")
+	appManagementUninstallCmd.Flags().BoolP(FlagAppManagementUninstallNoRemoveConfig, "n", false, "do not remove config folder")
 
 	// Here you will define your flags and configuration settings.
 
