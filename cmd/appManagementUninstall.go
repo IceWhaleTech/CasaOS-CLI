@@ -82,7 +82,7 @@ var appManagementUninstallCmd = &cobra.Command{
 func init() {
 	appManagementCmd.AddCommand(appManagementUninstallCmd)
 
-	appManagementUninstallCmd.Flags().BoolP(FlagAppManagementUninstallNoRemoveConfig, "n", true, "do not remove config folder")
+	appManagementUninstallCmd.Flags().BoolP(FlagAppManagementUninstallNoRemoveConfig, "n", false, "do not remove config folder")
 
 	// Here you will define your flags and configuration settings.
 
