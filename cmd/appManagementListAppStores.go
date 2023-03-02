@@ -63,11 +63,11 @@ var appManagementListAppStoresCmd = &cobra.Command{
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 3, ' ', 0)
 		defer w.Flush()
 
-		fmt.Fprintln(w, "ID\tURL")
-		fmt.Fprintln(w, "--\t---")
+		fmt.Fprintln(w, "ID\tURL\tSTORE ROOT")
+		fmt.Fprintln(w, "--\t---\t----------")
 
 		for id, appStore := range *response.JSON200.Data {
-			fmt.Fprintf(w, "%d\t%s\n", id, *appStore.URL)
+			fmt.Fprintf(w, "%d\t%s\t%s\n", id, *appStore.URL, *appStore.StoreRoot)
 		}
 
 		return nil

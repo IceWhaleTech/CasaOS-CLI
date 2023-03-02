@@ -22,6 +22,7 @@ import (
 const (
 	FlagAppManagementYAML     = "yaml"
 	FlagAppManagementUseColor = "color"
+	FlagAppManagementStoreURL = "app-store-url"
 )
 
 // appManagementCmd represents the appManagement command

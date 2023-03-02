@@ -16,14 +16,59 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+
+	"github.com/IceWhaleTech/CasaOS-CLI/codegen/app_management"
 	"github.com/spf13/cobra"
 )
 
 // appManagementRegisterAppStoreCmd represents the appManagementRegisterAppStore command
 var appManagementRegisterAppStoreCmd = &cobra.Command{
-	Use:   "app-store",
-	Short: "register an app store",
+	Use:     "app-store <url>",
+	Short:   "register an app store",
+	Aliases: []string{"add"},
+	Args:    cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
+		if err != nil {
+			return err
+		}
+
+		url := fmt.Sprintf("http://%s/%s", rootURL, BasePathAppManagement)
+
+		client, err := app_management.NewClientWithResponses(url)
+		if err != nil {
+			return err
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
+		defer cancel()
+
+		appStoreURL := cmd.Flags().Arg(0)
+		response, err := client.RegisterAppStoreWithResponse(ctx, &app_management.RegisterAppStoreParams{Url: &appStoreURL})
+		if err != nil {
+			return err
+		}
+
+		var baseResponse app_management.BaseResponse
+
+		if response.StatusCode() != http.StatusOK {
+			if err := json.Unmarshal(response.Body, &baseResponse); err != nil {
+				return fmt.Errorf("%s - %s", response.Status(), response.Body)
+			}
+
+			return fmt.Errorf("%s - %s", response.Status(), *baseResponse.Message)
+		}
+
+		if err := json.Unmarshal(response.Body, &baseResponse); err != nil {
+			return fmt.Errorf("%s - %s", response.Status(), response.Body)
+		}
+
+		fmt.Println(*baseResponse.Message)
+
 		return nil
 	},
 }
