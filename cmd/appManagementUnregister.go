@@ -19,34 +19,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	FlagAppManagementYAML     = "yaml"
-	FlagAppManagementUseColor = "color"
-	FlagAppManagementStoreURL = "app-store-url"
-	FlagAppManagementStoreID  = "app-store-id"
-)
-
-// appManagementCmd represents the appManagement command
-var appManagementCmd = &cobra.Command{
-	Use:     "app-management",
-	Short:   "All compose app management and store related commands",
-	GroupID: RootGroupID,
+// appManagementUnregisterCmd represents the appManagementUnregister command
+var appManagementUnregisterCmd = &cobra.Command{
+	Use:   "unregister",
+	Short: "unregister an app store or ...",
 }
 
-const (
-	BasePathAppManagement = "v2/app_management"
-)
-
 func init() {
-	rootCmd.AddCommand(appManagementCmd)
+	appManagementCmd.AddCommand(appManagementUnregisterCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// appManagementCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// appManagementUnregisterCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// appManagementCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// appManagementUnregisterCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

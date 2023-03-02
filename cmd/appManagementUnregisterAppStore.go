@@ -20,17 +20,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/IceWhaleTech/CasaOS-CLI/codegen/app_management"
 	"github.com/spf13/cobra"
 )
 
-// appManagementRegisterAppStoreCmd represents the appManagementRegisterAppStore command
-var appManagementRegisterAppStoreCmd = &cobra.Command{
-	Use:     "app-store <url>",
-	Short:   "register an app store by url",
+// appManagementUnregisterAppStoreCmd represents the appManagementUnregisterAppStore command
+var appManagementUnregisterAppStoreCmd = &cobra.Command{
+	Use:     "app-store <id>",
+	Short:   "unregister an app store by id",
 	Aliases: []string{"appstore"},
-	Args:    cobra.ExactArgs(1),
+	Args: cobra.MatchAll(cobra.ExactArgs(1), func(cmd *cobra.Command, args []string) error {
+		id, err := strconv.Atoi(args[0])
+		if err != nil || id < 0 {
+			return fmt.Errorf("id must be a number larger or equal to 0")
+		}
+
+		return nil
+	}),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
 		if err != nil {
@@ -38,6 +46,11 @@ var appManagementRegisterAppStoreCmd = &cobra.Command{
 		}
 
 		url := fmt.Sprintf("http://%s/%s", rootURL, BasePathAppManagement)
+
+		appStoreID, err := strconv.Atoi(cmd.Flags().Arg(0))
+		if err != nil || appStoreID < 0 {
+			return fmt.Errorf("how can it get here?? should have been validated in cobra.MatchAll(...)")
+		}
 
 		client, err := app_management.NewClientWithResponses(url)
 		if err != nil {
@@ -47,8 +60,7 @@ var appManagementRegisterAppStoreCmd = &cobra.Command{
 		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
 		defer cancel()
 
-		appStoreURL := cmd.Flags().Arg(0)
-		response, err := client.RegisterAppStoreWithResponse(ctx, &app_management.RegisterAppStoreParams{Url: &appStoreURL})
+		response, err := client.UnregisterAppStoreWithResponse(ctx, appStoreID)
 		if err != nil {
 			return err
 		}
@@ -74,15 +86,15 @@ var appManagementRegisterAppStoreCmd = &cobra.Command{
 }
 
 func init() {
-	appManagementRegisterCmd.AddCommand(appManagementRegisterAppStoreCmd)
+	appManagementUnregisterCmd.AddCommand(appManagementUnregisterAppStoreCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// appManagementRegisterAppStoreCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// appManagementUnregisterAppStoreCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// appManagementRegisterAppStoreCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// appManagementUnregisterAppStoreCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

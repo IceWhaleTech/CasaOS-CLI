@@ -28,8 +28,9 @@ import (
 
 // appManagementListAppStoresCmd represents the appManagementListAppStores command
 var appManagementListAppStoresCmd = &cobra.Command{
-	Use:   "app-stores",
-	Short: "list registered app stores",
+	Use:     "app-stores",
+	Short:   "list registered app stores",
+	Aliases: []string{"app-store", "appstore", "appstores"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
 		if err != nil {

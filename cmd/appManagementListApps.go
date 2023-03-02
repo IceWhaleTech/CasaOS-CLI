@@ -30,8 +30,9 @@ import (
 
 // appManagementListAppsCmd represents the appManagementListApps command
 var appManagementListAppsCmd = &cobra.Command{
-	Use:   "apps",
-	Short: "list locally installed apps",
+	Use:     "apps",
+	Short:   "list locally installed apps",
+	Aliases: []string{"app"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
 		if err != nil {
