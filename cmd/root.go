@@ -60,3 +60,10 @@ func init() {
 		Title: "Services",
 	})
 }
+
+func trim(s string, l uint) string {
+	if len(s) > int(l) {
+		return s[:l] + "..."
+	}
+	return s
+}
