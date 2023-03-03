@@ -97,21 +97,14 @@ var appManagementListAppsCmd = &cobra.Command{
 				return err
 			}
 
-			statusResponse, err := client.ComposeAppStatusWithResponse(ctx, id)
+			status, err := status(app)
 			if err != nil {
-				return err
-			}
-
-			if statusResponse.StatusCode() != http.StatusOK {
-				var baseResponse app_management.BaseResponse
-				if err := mapstructure.Decode(statusResponse.JSON200, &baseResponse); err != nil {
-					return fmt.Errorf("%s - %s", statusResponse.Status(), statusResponse.Body)
-				}
+				status = "unknown"
 			}
 
 			fmt.Fprintf(w, "%s\t%s\t%s\n",
 				id,
-				*statusResponse.JSON200.Data,
+				status,
 				trim(appList[mainApp].Description["en_US"], 78),
 			)
 		}
@@ -132,6 +125,25 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// appManagementListAppsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func status(composeApp interface{}) (string, error) {
+	composeAppMapStruct, ok := composeApp.(map[string]interface{})
+	if !ok {
+		return "", fmt.Errorf("app is not a map[string]interface{}")
+	}
+
+	_, ok = composeAppMapStruct["status"]
+	if !ok {
+		return "", fmt.Errorf("app does not have \"status\"")
+	}
+
+	status, ok := composeAppMapStruct["status"].(string)
+	if !ok {
+		return "", fmt.Errorf("app[\"status\"] is not a string")
+	}
+
+	return status, nil
 }
 
 func appList(composeApp interface{}) (string, map[string]app_management.AppStoreInfo, error) {
