@@ -20,11 +20,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/IceWhaleTech/CasaOS-CLI/codegen/app_management"
 	"github.com/mitchellh/mapstructure"
+	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 )
 
@@ -88,8 +91,8 @@ var appManagementListAppsCmd = &cobra.Command{
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 3, ' ', 0)
 		defer w.Flush()
 
-		fmt.Fprintln(w, "APPID\tSTATUS\tDESCRIPTION")
-		fmt.Fprintln(w, "-----\t------\t-----------")
+		fmt.Fprintln(w, "APPID\tSTATUS\tWEB UI\tDESCRIPTION")
+		fmt.Fprintln(w, "-----\t------\t------\t-----------")
 
 		for id, app := range data {
 			mainApp, appList, err := appList(app)
@@ -97,15 +100,42 @@ var appManagementListAppsCmd = &cobra.Command{
 				return err
 			}
 
+			mainAppStoreInfo, ok := appList[mainApp]
+			if !ok {
+				return fmt.Errorf("main app not found in app list")
+			}
+
 			status, err := status(app)
 			if err != nil {
 				status = "unknown"
 			}
 
-			fmt.Fprintf(w, "%s\t%s\t%s\n",
+			scheme := "http"
+			if mainAppStoreInfo.Container.Scheme != nil {
+				scheme = string(*mainAppStoreInfo.Container.Scheme)
+			}
+
+			hostname, err := hostname()
+			if err != nil {
+				return err
+			}
+
+			if mainAppStoreInfo.Container.Hostname != nil {
+				hostname = *mainAppStoreInfo.Container.Hostname
+			}
+
+			webUI := fmt.Sprintf("%s://%s:%s/%s",
+				scheme,
+				hostname,
+				mainAppStoreInfo.Container.PortMap,
+				strings.TrimLeft(mainAppStoreInfo.Container.Index, "/"),
+			)
+
+			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 				id,
 				status,
-				trim(appList[mainApp].Description["en_US"], 78),
+				webUI,
+				trim(lo.Values(mainAppStoreInfo.Description)[0], 78),
 			)
 		}
 
@@ -189,4 +219,34 @@ func appList(composeApp interface{}) (string, map[string]app_management.AppStore
 	}
 
 	return mainApp, appList, nil
+}
+
+func hostname() (string, error) {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		return "", err
+	}
+
+	for _, i := range ifaces {
+		addrs, err := i.Addrs()
+		if err != nil {
+			return "", err
+		}
+
+		for _, addr := range addrs {
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+
+			if ip != nil && !ip.IsLoopback() && ip.To4() != nil {
+				return ip.String(), nil
+			}
+		}
+	}
+
+	return "", fmt.Errorf("could not find hostname")
 }
