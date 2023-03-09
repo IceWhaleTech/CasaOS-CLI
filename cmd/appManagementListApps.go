@@ -95,19 +95,25 @@ var appManagementListAppsCmd = &cobra.Command{
 		fmt.Fprintln(w, "-----\t------\t------\t-----------")
 
 		for id, app := range data {
+			status, err := status(app)
+			if err != nil {
+				status = "unknown"
+			}
+
 			mainApp, appList, err := appList(app)
 			if err != nil {
-				return err
+				fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
+					id,
+					status,
+					"n/a",
+					"(not a CasaOS compose app)",
+				)
+				return nil
 			}
 
 			mainAppStoreInfo, ok := appList[mainApp]
 			if !ok {
 				return fmt.Errorf("main app not found in app list")
-			}
-
-			status, err := status(app)
-			if err != nil {
-				status = "unknown"
 			}
 
 			scheme := "http"
