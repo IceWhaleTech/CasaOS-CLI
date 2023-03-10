@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	FlagAppManagementInstallFile = "file"
+	FlagAppManagementFile = "file"
 )
 
 // appManagementInstallCmd represents the appManagementInstall command
@@ -44,7 +44,7 @@ var appManagementInstallCmd = &cobra.Command{
 
 		url := fmt.Sprintf("http://%s/%s", rootURL, BasePathAppManagement)
 
-		filepath := cmd.Flag(FlagAppManagementInstallFile).Value.String()
+		filepath := cmd.Flag(FlagAppManagementFile).Value.String()
 
 		file, err := os.Open(filepath)
 		if err != nil {
@@ -82,8 +82,8 @@ var appManagementInstallCmd = &cobra.Command{
 func init() {
 	appManagementCmd.AddCommand(appManagementInstallCmd)
 
-	appManagementInstallCmd.Flags().StringP(FlagAppManagementInstallFile, "f", "", "path to a compose file")
-	if err := appManagementInstallCmd.MarkFlagRequired(FlagAppManagementInstallFile); err != nil {
+	appManagementInstallCmd.Flags().StringP(FlagAppManagementFile, "f", "", "path to a compose file")
+	if err := appManagementInstallCmd.MarkFlagRequired(FlagAppManagementFile); err != nil {
 		log.Fatalln(err.Error())
 	}
 
