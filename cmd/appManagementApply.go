@@ -27,15 +27,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	FlagAppManagementFile = "file"
-)
-
-// appManagementInstallCmd represents the appManagementInstall command
-var appManagementInstallCmd = &cobra.Command{
-	Use:     "install",
-	Aliases: []string{"add", "create", "up"},
-	Short:   "install a compose app",
+// appManagementApplyCmd represents the appManagementApply command
+var appManagementApplyCmd = &cobra.Command{
+	Use:   "apply <appid>",
+	Short: "apply changes to an installed compose app",
+	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
 		if err != nil {
@@ -43,6 +39,8 @@ var appManagementInstallCmd = &cobra.Command{
 		}
 
 		url := fmt.Sprintf("http://%s/%s", rootURL, BasePathAppManagement)
+
+		appID := cmd.Flags().Arg(0)
 
 		filepath := cmd.Flag(FlagAppManagementFile).Value.String()
 
@@ -56,10 +54,10 @@ var appManagementInstallCmd = &cobra.Command{
 			return err
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
+		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		response, err := client.InstallComposeAppWithBodyWithResponse(ctx, MIMEApplicationYAML, file)
+		response, err := client.UpdateComposeAppSettingsWithBodyWithResponse(ctx, appID, MIMEApplicationYAML, file)
 		if err != nil {
 			return err
 		}
@@ -80,10 +78,10 @@ var appManagementInstallCmd = &cobra.Command{
 }
 
 func init() {
-	appManagementCmd.AddCommand(appManagementInstallCmd)
+	appManagementCmd.AddCommand(appManagementApplyCmd)
 
-	appManagementInstallCmd.Flags().StringP(FlagAppManagementFile, "f", "", "path to a compose file")
-	if err := appManagementInstallCmd.MarkFlagRequired(FlagAppManagementFile); err != nil {
+	appManagementApplyCmd.Flags().StringP(FlagAppManagementFile, "f", "", "path to a compose file")
+	if err := appManagementApplyCmd.MarkFlagRequired(FlagAppManagementFile); err != nil {
 		log.Fatalln(err.Error())
 	}
 
@@ -91,9 +89,9 @@ func init() {
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// appManagementInstallCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// appManagementApplyCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// appManagementInstallCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// appManagementApplyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

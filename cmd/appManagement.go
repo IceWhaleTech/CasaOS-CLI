@@ -24,6 +24,8 @@ const (
 	FlagAppManagementUseColor = "color"
 	FlagAppManagementStoreURL = "app-store-url"
 	FlagAppManagementStoreID  = "app-store-id"
+
+	MIMEApplicationYAML = "application/yaml"
 )
 
 // appManagementCmd represents the appManagement command
