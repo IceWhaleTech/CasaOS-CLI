@@ -59,7 +59,7 @@ var appManagementInstallCmd = &cobra.Command{
 		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
 		defer cancel()
 
-		response, err := client.InstallComposeAppWithBodyWithResponse(ctx, "application/yaml", file)
+		response, err := client.InstallComposeAppWithBodyWithResponse(ctx, MIMEApplicationYAML, file)
 		if err != nil {
 			return err
 		}

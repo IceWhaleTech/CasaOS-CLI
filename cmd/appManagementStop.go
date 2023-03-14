@@ -21,17 +21,15 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/IceWhaleTech/CasaOS-CLI/codegen/app_management"
 	"github.com/spf13/cobra"
 )
 
-// appManagementApplyCmd represents the appManagementApply command
-var appManagementApplyCmd = &cobra.Command{
-	Use:   "apply <appid>",
-	Short: "apply changes to an installed compose app",
-	Args:  cobra.ExactArgs(1),
+// appManagementStopCmd represents the appManagementStop command
+var appManagementStopCmd = &cobra.Command{
+	Use:   "stop",
+	Short: "stop a compose app",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
 		if err != nil {
@@ -42,13 +40,6 @@ var appManagementApplyCmd = &cobra.Command{
 
 		appID := cmd.Flags().Arg(0)
 
-		filepath := cmd.Flag(FlagAppManagementFile).Value.String()
-
-		file, err := os.Open(filepath)
-		if err != nil {
-			return err
-		}
-
 		client, err := app_management.NewClientWithResponses(url)
 		if err != nil {
 			return err
@@ -57,7 +48,7 @@ var appManagementApplyCmd = &cobra.Command{
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		response, err := client.UpdateComposeAppSettingsWithBodyWithResponse(ctx, appID, MIMEApplicationYAML, file)
+		response, err := client.SetComposeAppStatusWithResponse(ctx, appID, app_management.SetComposeAppStatusJSONRequestBody(app_management.SetComposeAppStatusJSONBodyStop))
 		if err != nil {
 			return err
 		}
@@ -71,6 +62,11 @@ var appManagementApplyCmd = &cobra.Command{
 			return fmt.Errorf("%s - %s", response.Status(), *baseResponse.Message)
 		}
 
+		if response.JSON200 == nil || response.JSON200.Message == nil {
+			log.Println("compose app stopped successfully - no message is returned")
+			return nil
+		}
+
 		log.Println(*response.JSON200.Message)
 
 		return nil
@@ -78,20 +74,15 @@ var appManagementApplyCmd = &cobra.Command{
 }
 
 func init() {
-	appManagementCmd.AddCommand(appManagementApplyCmd)
-
-	appManagementApplyCmd.Flags().StringP(FlagAppManagementFile, "f", "", "path to a compose file")
-	if err := appManagementApplyCmd.MarkFlagRequired(FlagAppManagementFile); err != nil {
-		log.Fatalln(err.Error())
-	}
+	appManagementCmd.AddCommand(appManagementStopCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// appManagementApplyCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// appManagementStopCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// appManagementApplyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// appManagementStopCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
