@@ -21,16 +21,15 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/IceWhaleTech/CasaOS-CLI/codegen/app_management"
 	"github.com/spf13/cobra"
 )
 
-// appManagementApplyCmd represents the appManagementApply command
-var appManagementApplyCmd = &cobra.Command{
-	Use:   "apply <appid>",
-	Short: "apply changes to an installed compose app",
+// appManagementUpdateAppCmd represents the appManagementUpdateApp command
+var appManagementUpdateAppCmd = &cobra.Command{
+	Use:   "app <appid>",
+	Short: "update a compose app",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
@@ -42,12 +41,7 @@ var appManagementApplyCmd = &cobra.Command{
 
 		appID := cmd.Flags().Arg(0)
 
-		filepath := cmd.Flag(FlagAppManagementFile).Value.String()
-
-		file, err := os.Open(filepath)
-		if err != nil {
-			return err
-		}
+		force := cmd.Flag(FlagForce).Value.String() == "true"
 
 		client, err := app_management.NewClientWithResponses(url)
 		if err != nil {
@@ -57,7 +51,7 @@ var appManagementApplyCmd = &cobra.Command{
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		response, err := client.ApplyComposeAppSettingsWithBodyWithResponse(ctx, appID, MIMEApplicationYAML, file)
+		response, err := client.UpdateComposeAppWithResponse(ctx, appID, &app_management.UpdateComposeAppParams{Force: &force})
 		if err != nil {
 			return err
 		}
@@ -78,20 +72,17 @@ var appManagementApplyCmd = &cobra.Command{
 }
 
 func init() {
-	appManagementCmd.AddCommand(appManagementApplyCmd)
+	appManagementUpdateCmd.AddCommand(appManagementUpdateAppCmd)
 
-	appManagementApplyCmd.Flags().StringP(FlagAppManagementFile, "f", "", "path to a compose file")
-	if err := appManagementApplyCmd.MarkFlagRequired(FlagAppManagementFile); err != nil {
-		log.Fatalln(err.Error())
-	}
+	appManagementUpdateAppCmd.Flags().BoolP(FlagForce, "f", false, "force update the app without checking")
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// appManagementApplyCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// appManagementUpdateAppCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// appManagementApplyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// appManagementUpdateAppCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
