@@ -137,11 +137,19 @@ var appManagementListAppsCmd = &cobra.Command{
 				strings.TrimLeft(mainAppStoreInfo.Container.Index, "/"),
 			)
 
+			description := map[string]string{
+				"en_US": "No description available",
+			}
+
+			if mainAppStoreInfo.Description != nil {
+				description = mainAppStoreInfo.Description
+			}
+
 			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 				id,
 				status,
 				webUI,
-				trim(lo.Values(mainAppStoreInfo.Description)[0], 78),
+				trim(lo.Values(description)[0], 78),
 			)
 		}
 
