@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/IceWhaleTech/CasaOS-CLI/codegen/app_management"
@@ -28,8 +29,13 @@ import (
 )
 
 const (
-	FlagAppManagementCategory = "category"
+	FlagAppManagementCategory   = "category"
+	FlagAppManagementAuthorType = "type"
 )
+
+var authorTypes = []string{
+	string(app_management.Official), string(app_management.ByCasaos), string(app_management.Community),
+}
 
 // appManagementSearchCmd represents the appManagementSearch command
 var appManagementSearchCmd = &cobra.Command{
@@ -62,6 +68,19 @@ var appManagementSearchCmd = &cobra.Command{
 			params.Category = &category
 		}
 
+		authorType, err := cmd.Flags().GetString(FlagAppManagementAuthorType)
+		if err != nil {
+			return err
+		}
+
+		if authorType != "" {
+			if !lo.Contains(authorTypes, authorType) {
+				return fmt.Errorf("invalid author type %s, should be one of %s", authorType, strings.Join(authorTypes, ", "))
+			}
+
+			params.AuthorType = (*app_management.StoreAppAuthorType)(&authorType)
+		}
+
 		response, err := client.ComposeAppStoreInfoListWithResponse(ctx, params)
 		if err != nil {
 			return err
@@ -88,8 +107,13 @@ var appManagementSearchCmd = &cobra.Command{
 			recommendList = *response.JSON200.Data.Recommend
 		}
 
-		fmt.Fprintln(w, "Name\tCategory\tRecommended\tDescription")
-		fmt.Fprintln(w, "----\t--------\t-----------\t-----------")
+		installedList := []string{}
+		if response.JSON200.Data.Installed != nil && len(*response.JSON200.Data.Installed) != 0 {
+			installedList = *response.JSON200.Data.Installed
+		}
+
+		fmt.Fprintln(w, "Name\tCategory\tRecommended\tAuthor\tDeveloper\tDescription")
+		fmt.Fprintln(w, "----\t--------\t-----------\t------\t---------\t-----------")
 
 		for storeAppID, composeApp := range *response.JSON200.Data.List {
 			if composeApp.Apps == nil || len(*composeApp.Apps) == 0 {
@@ -104,12 +128,16 @@ var appManagementSearchCmd = &cobra.Command{
 
 			mainApp := (*composeApp.Apps)[*composeApp.MainApp]
 
+			if lo.Contains(installedList, storeAppID) {
+				storeAppID = fmt.Sprintf("%s [installed]", storeAppID)
+			}
+
 			recommended := ""
 			if lo.Contains(recommendList, storeAppID) {
 				recommended = "yes"
 			}
 
-			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", storeAppID, mainApp.Category, recommended, trim(mainApp.Description["en_US"], 78))
+			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n", storeAppID, mainApp.Category, recommended, mainApp.Author, mainApp.Developer, trim(mainApp.Description["en_US"], 78))
 		}
 
 		return nil
@@ -118,6 +146,8 @@ var appManagementSearchCmd = &cobra.Command{
 
 func init() {
 	appManagementCmd.AddCommand(appManagementSearchCmd)
+
+	appManagementSearchCmd.Flags().StringP(FlagAppManagementAuthorType, "t", "", fmt.Sprintf("author type of the app (%s)", strings.Join(authorTypes, ", ")))
 
 	appManagementSearchCmd.Flags().StringP(FlagAppManagementCategory, "c", "", "category of the app")
 
