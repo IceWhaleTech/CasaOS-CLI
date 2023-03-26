@@ -11,7 +11,7 @@ require (
 	github.com/samber/lo v1.37.0
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
 	github.com/spf13/cobra v1.6.1
-	golang.org/x/net v0.7.0
+	golang.org/x/net v0.8.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -38,12 +38,12 @@ require (
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/tools v0.3.0 // indirect
 )
 
 require (
-	github.com/IceWhaleTech/CasaOS-Common v0.4.1
+	github.com/IceWhaleTech/CasaOS-Common v0.4.3
 	github.com/googollee/go-socket.io v1.7.0
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect

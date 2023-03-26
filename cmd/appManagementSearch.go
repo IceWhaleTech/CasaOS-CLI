@@ -31,6 +31,7 @@ import (
 const (
 	FlagAppManagementCategory   = "category"
 	FlagAppManagementAuthorType = "type"
+	FlagAppManagementRecommend  = "recommend"
 )
 
 var authorTypes = []string{
@@ -81,6 +82,15 @@ var appManagementSearchCmd = &cobra.Command{
 			params.AuthorType = (*app_management.StoreAppAuthorType)(&authorType)
 		}
 
+		recommend, err := cmd.Flags().GetBool(FlagAppManagementRecommend)
+		if err != nil {
+			return err
+		}
+
+		if recommend {
+			params.Recommend = &recommend
+		}
+
 		response, err := client.ComposeAppStoreInfoListWithResponse(ctx, params)
 		if err != nil {
 			return err
@@ -102,18 +112,13 @@ var appManagementSearchCmd = &cobra.Command{
 			return fmt.Errorf("no compose app found from this store")
 		}
 
-		recommendList := []string{}
-		if response.JSON200.Data.Recommend != nil && len(*response.JSON200.Data.Recommend) != 0 {
-			recommendList = *response.JSON200.Data.Recommend
-		}
-
 		installedList := []string{}
 		if response.JSON200.Data.Installed != nil && len(*response.JSON200.Data.Installed) != 0 {
 			installedList = *response.JSON200.Data.Installed
 		}
 
-		fmt.Fprintln(w, "Name\tCategory\tRecommended\tAuthor\tDeveloper\tDescription")
-		fmt.Fprintln(w, "----\t--------\t-----------\t------\t---------\t-----------")
+		fmt.Fprintln(w, "Name\tCategory\tAuthor\tDeveloper\tDescription")
+		fmt.Fprintln(w, "----\t--------\t------\t---------\t-----------")
 
 		for storeAppID, composeApp := range *response.JSON200.Data.List {
 			if composeApp.Apps == nil || len(*composeApp.Apps) == 0 {
@@ -132,12 +137,7 @@ var appManagementSearchCmd = &cobra.Command{
 				storeAppID = fmt.Sprintf("%s [installed]", storeAppID)
 			}
 
-			recommended := ""
-			if lo.Contains(recommendList, storeAppID) {
-				recommended = "yes"
-			}
-
-			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n", storeAppID, mainApp.Category, recommended, mainApp.Author, mainApp.Developer, trim(mainApp.Description["en_US"], 78))
+			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", storeAppID, mainApp.Category, mainApp.Author, mainApp.Developer, trim(mainApp.Description["en_US"], 78))
 		}
 
 		return nil
@@ -150,6 +150,8 @@ func init() {
 	appManagementSearchCmd.Flags().StringP(FlagAppManagementAuthorType, "t", "", fmt.Sprintf("author type of the app (%s)", strings.Join(authorTypes, ", ")))
 
 	appManagementSearchCmd.Flags().StringP(FlagAppManagementCategory, "c", "", "category of the app")
+
+	appManagementSearchCmd.Flags().BoolP(FlagAppManagementRecommend, "r", false, "recommend apps")
 
 	// Here you will define your flags and configuration settings.
 
