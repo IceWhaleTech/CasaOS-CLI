@@ -121,23 +121,11 @@ var appManagementSearchCmd = &cobra.Command{
 		fmt.Fprintln(w, "----\t--------\t------\t---------\t-----------")
 
 		for storeAppID, composeApp := range *response.JSON200.Data.List {
-			if composeApp.Apps == nil || len(*composeApp.Apps) == 0 {
-				fmt.Printf("skipping compose app %s because it has no apps", storeAppID)
-				continue
-			}
-
-			if composeApp.MainApp == nil || *composeApp.MainApp == "" {
-				fmt.Printf("skipping compose app %s because it has no main app", storeAppID)
-				continue
-			}
-
-			mainApp := (*composeApp.Apps)[*composeApp.MainApp]
-
 			if lo.Contains(installedList, storeAppID) {
 				storeAppID = fmt.Sprintf("%s [installed]", storeAppID)
 			}
 
-			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", storeAppID, mainApp.Category, mainApp.Author, mainApp.Developer, trim(mainApp.Description["en_US"], 78))
+			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", storeAppID, composeApp.Category, composeApp.Author, composeApp.Developer, trim(composeApp.Description["en_US"], 78))
 		}
 
 		return nil

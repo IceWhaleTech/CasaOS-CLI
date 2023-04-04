@@ -100,25 +100,30 @@ var appManagementListAppsCmd = &cobra.Command{
 				status = "unknown"
 			}
 
-			mainApp, appList, err := appList(app)
-			if err != nil {
+			storeInfo, err := composeAppStoreInfo(app)
+			if err != nil || storeInfo == nil || storeInfo.Apps == nil {
 				fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
 					id,
 					status,
 					"n/a",
 					"(not a CasaOS compose app)",
 				)
-				return nil
+				continue
 			}
 
-			mainAppStoreInfo, ok := appList[mainApp]
-			if !ok {
-				return fmt.Errorf("main app not found in app list")
+			var mainAppStoreInfo app_management.AppStoreInfo
+
+			if storeInfo.Main != nil {
+				mainAppStoreInfo = (*storeInfo.Apps)[*storeInfo.Main]
+			} else {
+				for _, mainAppStoreInfo = range *storeInfo.Apps {
+					break
+				}
 			}
 
 			scheme := "http"
-			if mainAppStoreInfo.Container.Scheme != nil {
-				scheme = string(*mainAppStoreInfo.Container.Scheme)
+			if mainAppStoreInfo.Scheme != nil {
+				scheme = string(*mainAppStoreInfo.Scheme)
 			}
 
 			hostname, err := hostname()
@@ -126,23 +131,23 @@ var appManagementListAppsCmd = &cobra.Command{
 				return err
 			}
 
-			if mainAppStoreInfo.Container.Hostname != nil {
-				hostname = *mainAppStoreInfo.Container.Hostname
+			if mainAppStoreInfo.Hostname != nil {
+				hostname = *mainAppStoreInfo.Hostname
 			}
 
 			webUI := fmt.Sprintf("%s://%s:%s/%s",
 				scheme,
 				hostname,
-				mainAppStoreInfo.Container.PortMap,
-				strings.TrimLeft(mainAppStoreInfo.Container.Index, "/"),
+				mainAppStoreInfo.PortMap,
+				strings.TrimLeft(mainAppStoreInfo.Index, "/"),
 			)
 
 			description := map[string]string{
 				"en_US": "No description available",
 			}
 
-			if mainAppStoreInfo.Description != nil {
-				description = mainAppStoreInfo.Description
+			if storeInfo.Description != nil {
+				description = storeInfo.Description
 			}
 
 			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
@@ -190,49 +195,29 @@ func status(composeApp interface{}) (string, error) {
 	return status, nil
 }
 
-func appList(composeApp interface{}) (string, map[string]app_management.AppStoreInfo, error) {
+func composeAppStoreInfo(composeApp interface{}) (*app_management.ComposeAppStoreInfo, error) {
 	composeAppMapStruct, ok := composeApp.(map[string]interface{})
 	if !ok {
-		return "", nil, fmt.Errorf("app is not a map[string]interface{}")
+		return nil, fmt.Errorf("app is not a map[string]interface{}")
 	}
 
 	_, ok = composeAppMapStruct["store_info"]
 	if !ok {
-		return "", nil, fmt.Errorf("app does not have \"store_info\"")
+		return nil, fmt.Errorf("app does not have \"store_info\"")
 	}
 
-	composeAppStoreInfo, ok := composeAppMapStruct["store_info"].(map[string]interface{})
+	composeAppStoreInfoMapStruct, ok := composeAppMapStruct["store_info"].(map[string]interface{})
 	if !ok {
-		return "", nil, fmt.Errorf("app[\"store_info\"] is not a map[string]interface{}")
+		return nil, fmt.Errorf("app[\"store_info\"] is not a map[string]interface{}")
 	}
 
-	_, ok = composeAppStoreInfo["main_app"]
-	if !ok {
-		return "", nil, fmt.Errorf("app[\"store_info\"] does not have \"main_app\"")
+	composeAppStoreInfo := &app_management.ComposeAppStoreInfo{}
+
+	if err := mapstructure.Decode(composeAppStoreInfoMapStruct, composeAppStoreInfo); err != nil {
+		return nil, err
 	}
 
-	mainApp, ok := composeAppStoreInfo["main_app"].(string)
-	if !ok {
-		return "", nil, fmt.Errorf("app[\"store_info\"][\"main_app\"] is not a string")
-	}
-
-	_, ok = composeAppStoreInfo["apps"]
-	if !ok {
-		return "", nil, fmt.Errorf("app[\"store_info\"] does not have \"apps\"")
-	}
-
-	appListMapStruct, ok := composeAppStoreInfo["apps"].(map[string]interface{})
-	if !ok {
-		return "", nil, fmt.Errorf("app[\"store_info\"][\"apps\"] is not a map[string]interface{}")
-	}
-
-	var appList map[string]app_management.AppStoreInfo
-
-	if err := mapstructure.Decode(appListMapStruct, &appList); err != nil {
-		return "", nil, err
-	}
-
-	return mainApp, appList, nil
+	return composeAppStoreInfo, nil
 }
 
 func hostname() (string, error) {

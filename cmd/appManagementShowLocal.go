@@ -204,12 +204,17 @@ func showAppList(ctx context.Context, writer io.Writer, client *app_management.C
 		return fmt.Errorf("data is not a map[string]interface")
 	}
 
-	mainApp, appList, err := appList(data)
+	storeInfo, err := composeAppStoreInfo(data)
 	if err != nil {
 		return err
 	}
 
-	for name, app := range appList {
+	mainApp := "unknown"
+	if storeInfo.Main != nil {
+		mainApp = *storeInfo.Main
+	}
+
+	for name, app := range *storeInfo.Apps {
 		var buf bytes.Buffer
 
 		enc := json.NewEncoder(&buf)
