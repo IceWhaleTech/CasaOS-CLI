@@ -125,7 +125,7 @@ var appManagementSearchCmd = &cobra.Command{
 				storeAppID = fmt.Sprintf("%s [installed]", storeAppID)
 			}
 
-			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", storeAppID, composeApp.Category, composeApp.Author, composeApp.Developer, trim(composeApp.Description["en_US"], 78))
+			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", storeAppID, composeApp.Category, composeApp.Author, composeApp.Developer, trim(composeApp.Description["en_us"], 78))
 		}
 
 		return nil

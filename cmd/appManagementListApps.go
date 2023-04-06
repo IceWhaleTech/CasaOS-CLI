@@ -143,7 +143,7 @@ var appManagementListAppsCmd = &cobra.Command{
 			)
 
 			description := map[string]string{
-				"en_US": "No description available",
+				"en_us": "No description available",
 			}
 
 			if storeInfo.Description != nil {
