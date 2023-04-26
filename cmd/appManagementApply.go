@@ -24,6 +24,7 @@ import (
 	"os"
 
 	"github.com/IceWhaleTech/CasaOS-CLI/codegen/app_management"
+	"github.com/samber/lo"
 	"github.com/spf13/cobra"
 )
 
@@ -42,6 +43,8 @@ var appManagementApplyCmd = &cobra.Command{
 
 		appID := cmd.Flags().Arg(0)
 
+		dryRun := cmd.Flag(FlagDryRun).Value.String() == "true"
+
 		filepath := cmd.Flag(FlagAppManagementFile).Value.String()
 
 		file, err := os.Open(filepath)
@@ -57,7 +60,9 @@ var appManagementApplyCmd = &cobra.Command{
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		response, err := client.ApplyComposeAppSettingsWithBodyWithResponse(ctx, appID, MIMEApplicationYAML, file)
+		params := app_management.ApplyComposeAppSettingsParams{DryRun: lo.ToPtr(dryRun)}
+
+		response, err := client.ApplyComposeAppSettingsWithBodyWithResponse(ctx, appID, &params, MIMEApplicationYAML, file)
 		if err != nil {
 			return err
 		}
@@ -79,6 +84,8 @@ var appManagementApplyCmd = &cobra.Command{
 
 func init() {
 	appManagementCmd.AddCommand(appManagementApplyCmd)
+
+	appManagementApplyCmd.Flags().BoolP(FlagDryRun, "d", false, "dry run")
 
 	appManagementApplyCmd.Flags().StringP(FlagAppManagementFile, "f", "", "path to a compose file")
 	if err := appManagementApplyCmd.MarkFlagRequired(FlagAppManagementFile); err != nil {
