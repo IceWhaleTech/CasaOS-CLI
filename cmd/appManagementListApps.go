@@ -111,19 +111,9 @@ var appManagementListAppsCmd = &cobra.Command{
 				continue
 			}
 
-			var mainAppStoreInfo app_management.AppStoreInfo
-
-			if storeInfo.Main != nil {
-				mainAppStoreInfo = (*storeInfo.Apps)[*storeInfo.Main]
-			} else {
-				for _, mainAppStoreInfo = range *storeInfo.Apps {
-					break
-				}
-			}
-
 			scheme := "http"
-			if mainAppStoreInfo.Scheme != nil {
-				scheme = string(*mainAppStoreInfo.Scheme)
+			if storeInfo.Scheme != nil {
+				scheme = string(*storeInfo.Scheme)
 			}
 
 			hostname, err := hostname()
@@ -131,15 +121,15 @@ var appManagementListAppsCmd = &cobra.Command{
 				return err
 			}
 
-			if mainAppStoreInfo.Hostname != nil {
-				hostname = *mainAppStoreInfo.Hostname
+			if storeInfo.Hostname != nil {
+				hostname = *storeInfo.Hostname
 			}
 
 			webUI := fmt.Sprintf("%s://%s:%s/%s",
 				scheme,
 				hostname,
-				mainAppStoreInfo.PortMap,
-				strings.TrimLeft(mainAppStoreInfo.Index, "/"),
+				storeInfo.PortMap,
+				strings.TrimLeft(storeInfo.Index, "/"),
 			)
 
 			description := map[string]string{
