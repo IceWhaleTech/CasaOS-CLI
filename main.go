@@ -19,7 +19,9 @@ limitations under the License.
 */
 package main
 
-import "github.com/IceWhaleTech/CasaOS-CLI/cmd"
+import (
+	"github.com/IceWhaleTech/CasaOS-CLI/cmd"
+)
 
 var (
 	// see https://goreleaser.com/cookbooks/using-main.version

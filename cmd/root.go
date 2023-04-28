@@ -19,6 +19,7 @@ import (
 	"os"
 	"time"
 
+	jsoniter "github.com/json-iterator/go"
 	"github.com/spf13/cobra"
 )
 
@@ -35,6 +36,8 @@ var (
 	Version string
 	Commit  string
 	Date    string
+
+	json = jsoniter.ConfigCompatibleWithStandardLibrary
 )
 
 // rootCmd represents the base command when called without any subcommands

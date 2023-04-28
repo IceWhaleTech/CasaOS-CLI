@@ -17,7 +17,6 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net"
@@ -82,48 +81,52 @@ var appManagementListAppsCmd = &cobra.Command{
 			return fmt.Errorf("%s - %s", response.Status, *baseResponse.Message)
 		}
 
-		// get mapstruct of response body - can't unmarshal directly due to https://github.com/compose-spec/compose-go/issues/353
-		var body map[string]interface{}
-		if err := json.Unmarshal(buf, &body); err != nil {
-			return err
-		}
-
-		_, ok := body["data"]
-		if !ok {
-			return fmt.Errorf("body does not contain `data`")
-		}
-
-		data, ok := body["data"].(map[string]interface{})
-		if !ok {
-			return fmt.Errorf("data is not a map[string]interface")
-		}
+		data := json.Get(buf, "data")
 
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 3, ' ', 0)
 		defer w.Flush()
 
-		fmt.Fprintln(w, "APPID\tSTATUS\tWEB UI\tDESCRIPTION")
-		fmt.Fprintln(w, "-----\t------\t------\t-----------")
+		fmt.Fprintln(w, "APPID\tSTATUS\tWEB UI\tIMAGES\tDESCRIPTION")
+		fmt.Fprintln(w, "-----\t------\t------\t------\t-----------")
 
-		for id, app := range data {
-			status, err := status(app)
-			if err != nil {
-				status = "unknown"
+		for _, id := range data.Keys() {
+			app := data.Get(id)
+
+			status := app.Get("status").ToString()
+
+			images := []string{}
+			compose := app.Get("compose")
+			if compose.LastError() == nil {
+				services := compose.Get("services")
+				if services.LastError() == nil {
+					for _, id := range services.Keys() {
+						service := services.Get(id)
+						if service.LastError() == nil {
+							image := service.Get("image").ToString()
+							if image != "" {
+								images = append(images, image)
+							}
+						}
+					}
+				}
 			}
 
-			storeInfo, err := composeAppStoreInfo(app)
-			if err != nil || storeInfo == nil || storeInfo.Apps == nil {
-				fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
+			storeInfo := app.Get("store_info")
+			if storeInfo.LastError() != nil {
+				fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n",
 					id,
 					status,
 					"n/a",
+					strings.Join(images, ","),
 					"(not a CasaOS compose app)",
 				)
 				continue
 			}
 
 			scheme := "http"
-			if storeInfo.Scheme != nil {
-				scheme = string(*storeInfo.Scheme)
+			schemeAny := storeInfo.Get("scheme")
+			if schemeAny.LastError() == nil && schemeAny.ToString() != "" {
+				scheme = schemeAny.ToString()
 			}
 
 			hostname, err := hostname()
@@ -131,30 +134,54 @@ var appManagementListAppsCmd = &cobra.Command{
 				return err
 			}
 
-			if storeInfo.Hostname != nil {
-				hostname = *storeInfo.Hostname
+			hostnameAny := storeInfo.Get("hostname")
+			if hostnameAny.LastError() == nil && hostnameAny.ToString() != "" {
+				hostname = hostnameAny.ToString()
+			}
+
+			portMap := "unknown"
+			portMapAny := storeInfo.Get("port_map")
+			if portMapAny.LastError() == nil && portMapAny.ToString() != "" {
+				portMap = portMapAny.ToString()
+			}
+
+			index := ""
+			indexAny := storeInfo.Get("index")
+			if indexAny.LastError() == nil && indexAny.ToString() != "" {
+				index = indexAny.ToString()
 			}
 
 			webUI := fmt.Sprintf("%s://%s:%s/%s",
 				scheme,
 				hostname,
-				storeInfo.PortMap,
-				strings.TrimLeft(storeInfo.Index, "/"),
+				portMap,
+				strings.TrimLeft(index, "/"),
 			)
 
 			description := map[string]string{
 				"en_us": "No description available",
 			}
 
-			if storeInfo.Description != nil {
-				description = storeInfo.Description
+			descriptionAny := storeInfo.Get("description")
+			if descriptionAny.LastError() == nil {
+				for _, key := range descriptionAny.Keys() {
+					description[key] = descriptionAny.Get(key).ToString()
+				}
 			}
 
-			fmt.Fprintf(w, "%s\t%s\t%s\t%s\n",
+			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n",
 				id,
 				status,
 				webUI,
-				trim(lo.Values(description)[0], 78),
+				strings.Join(images, ","),
+				trim(
+					lo.If(
+						description["en_us"] != "", description["en_us"],
+					).Else(
+						lo.Values(description)[0],
+					),
+					78,
+				),
 			)
 		}
 
@@ -174,25 +201,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// appManagementListAppsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-func status(composeApp interface{}) (string, error) {
-	composeAppMapStruct, ok := composeApp.(map[string]interface{})
-	if !ok {
-		return "", fmt.Errorf("app is not a map[string]interface{}")
-	}
-
-	_, ok = composeAppMapStruct["status"]
-	if !ok {
-		return "", fmt.Errorf("app does not have \"status\"")
-	}
-
-	status, ok := composeAppMapStruct["status"].(string)
-	if !ok {
-		return "", fmt.Errorf("app[\"status\"] is not a string")
-	}
-
-	return status, nil
 }
 
 func composeAppStoreInfo(composeApp interface{}) (*app_management.ComposeAppStoreInfo, error) {
