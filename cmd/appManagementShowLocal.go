@@ -18,7 +18,6 @@ package cmd
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -182,7 +181,17 @@ func showAppList(ctx context.Context, writer io.Writer, client *app_management.C
 	if response.StatusCode != http.StatusOK {
 		var baseResponse app_management.BaseResponse
 		if err := json.Unmarshal(buf, &baseResponse); err != nil {
-			return fmt.Errorf("%s - %s", response.Status, response.Body)
+			body, err := io.ReadAll(response.Body)
+			if err != nil {
+				return err
+			}
+
+			message := string(body)
+			if message == "" {
+				message = "is the casaos-app-management service running?"
+			}
+
+			return fmt.Errorf("%s - %s", response.Status, message)
 		}
 
 		return fmt.Errorf("%s - %s", response.Status, *baseResponse.Message)

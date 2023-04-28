@@ -19,11 +19,13 @@ limitations under the License.
 */
 package main
 
-import "github.com/IceWhaleTech/CasaOS-CLI/cmd"
+import (
+	"github.com/IceWhaleTech/CasaOS-CLI/cmd"
+)
 
 var (
 	// see https://goreleaser.com/cookbooks/using-main.version
-	version = "0.4.3"
+	version = "0.4.4"
 	commit  = "unknown"
 	date    = "unknown"
 )
