@@ -26,6 +26,8 @@ const (
 	FlagAppManagementStoreID  = "app-store-id"
 
 	MIMEApplicationYAML = "application/yaml"
+
+	DefaultLanguage = "en_us"
 )
 
 // appManagementCmd represents the appManagement command

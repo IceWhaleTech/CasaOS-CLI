@@ -159,7 +159,7 @@ var appManagementListAppsCmd = &cobra.Command{
 			)
 
 			description := map[string]string{
-				"en_us": "No description available",
+				DefaultLanguage: "No description available",
 			}
 
 			descriptionAny := storeInfo.Get("description")
@@ -176,7 +176,7 @@ var appManagementListAppsCmd = &cobra.Command{
 				strings.Join(images, ","),
 				trim(
 					lo.If(
-						description["en_us"] != "", description["en_us"],
+						description[DefaultLanguage] != "", description[DefaultLanguage],
 					).Else(
 						lo.Values(description)[0],
 					),
