@@ -78,7 +78,12 @@ var appManagementListAppsCmd = &cobra.Command{
 				return fmt.Errorf("%s - %s", response.Status, message)
 			}
 
-			return fmt.Errorf("%s - %s", response.Status, *baseResponse.Message)
+			message := "(empty response body)"
+			if baseResponse.Message != nil {
+				message = *baseResponse.Message
+			}
+
+			return fmt.Errorf("%s - %s", response.Status, message)
 		}
 
 		data := json.Get(buf, "data")
