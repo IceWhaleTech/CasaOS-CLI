@@ -54,7 +54,7 @@ var appManagementSearchCmd = &cobra.Command{
 			return err
 		}
 
-		ctx, cancel := context.WithTimeout(context.Background(), DefaultTimeout)
+		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
 		params := &app_management.ComposeAppStoreInfoListParams{}
