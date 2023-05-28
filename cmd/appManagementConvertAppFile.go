@@ -16,25 +16,73 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 
+	"github.com/IceWhaleTech/CasaOS-CLI/codegen/app_management"
+	"github.com/alecthomas/chroma/quick"
+	"github.com/samber/lo"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
 )
 
 // appManagementConvertAppFileCmd represents the appManagementConvertAppFile command
 var appManagementConvertAppFileCmd = &cobra.Command{
 	Use:   "appfile",
-	Short: "convert to `docker-compose.yml` from an `appfile.json` exported by CasaOS v0.4.3 or earlier",
+	Short: "convert `appfile.json` to Docker Compose YAML (for local conversion, use `appfile2compose` command)",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
+		if err != nil {
+			return err
+		}
+
 		filepath := cmd.Flag(FlagAppManagementFile).Value.String()
+
+		useColor, err := cmd.Flags().GetBool(FlagAppManagementUseColor)
+		if err != nil {
+			return err
+		}
+
+		url := fmt.Sprintf("http://%s/%s", rootURL, BasePathAppManagement)
+
+		client, err := app_management.NewClientWithResponses(url)
+		if err != nil {
+			return err
+		}
+
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
 
 		file, err := os.Open(filepath)
 		if err != nil {
 			return err
 		}
 
-		decoder := json.NewDecoder(file)
+		params := app_management.ConvertParams{Type: lo.ToPtr(app_management.Appfile)}
+
+		response, err := client.ConvertWithBodyWithResponse(ctx, &params, MINEApplicationJSON, file)
+		if err != nil {
+			fmt.Println("Error: Unable to reach CasaOS API. Try convert locally using `appfile2compose` command.")
+			return err
+		}
+
+		if response.StatusCode() != http.StatusOK {
+			var baseResponse app_management.BaseResponse
+			if err := yaml.Unmarshal(response.Body, &baseResponse); err != nil {
+				return fmt.Errorf("%s - %s", response.Status(), response.Body)
+			}
+
+			return fmt.Errorf("%s - %s", response.Status(), *baseResponse.Message)
+		}
+
+		if useColor {
+			return quick.Highlight(cmd.OutOrStdout(), string(response.Body), "yaml", "terminal8", "native")
+		}
+
+		fmt.Println(string(response.Body))
 
 		return nil
 	},
@@ -47,6 +95,8 @@ func init() {
 	if err := appManagementConvertAppFileCmd.MarkFlagRequired(FlagAppManagementFile); err != nil {
 		log.Fatalln(err.Error())
 	}
+
+	appManagementConvertAppFileCmd.Flags().BoolP(FlagAppManagementUseColor, "c", false, "colorize output")
 
 	// Here you will define your flags and configuration settings.
 

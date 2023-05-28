@@ -26,7 +26,7 @@ var appManagementConvertCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(appManagementConvertCmd)
+	appManagementCmd.AddCommand(appManagementConvertCmd)
 
 	// Here you will define your flags and configuration settings.
 

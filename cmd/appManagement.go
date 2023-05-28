@@ -25,6 +25,7 @@ const (
 	FlagAppManagementStoreURL = "app-store-url"
 	FlagAppManagementStoreID  = "app-store-id"
 
+	MINEApplicationJSON = "application/json"
 	MIMEApplicationYAML = "application/yaml"
 
 	DefaultLanguage = "en_us"
