@@ -21,8 +21,8 @@ import (
 
 // appManagementListCmd represents the appManagementList command
 var appManagementListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "list compose apps",
+	Use:     "list",
+	Aliases: []string{"ls", "get"},
 }
 
 func init() {

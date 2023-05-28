@@ -39,7 +39,7 @@ var appManagementConvertAppFileCmd = &cobra.Command{
 			return err
 		}
 
-		filepath := cmd.Flag(FlagAppManagementFile).Value.String()
+		filepath := cmd.Flag(FlagFile).Value.String()
 
 		useColor, err := cmd.Flags().GetBool(FlagAppManagementUseColor)
 		if err != nil {
@@ -91,8 +91,8 @@ var appManagementConvertAppFileCmd = &cobra.Command{
 func init() {
 	appManagementConvertCmd.AddCommand(appManagementConvertAppFileCmd)
 
-	appManagementConvertAppFileCmd.Flags().StringP(FlagAppManagementFile, "f", "", "path to the `appfile.json` file")
-	if err := appManagementConvertAppFileCmd.MarkFlagRequired(FlagAppManagementFile); err != nil {
+	appManagementConvertAppFileCmd.Flags().StringP(FlagFile, "f", "", "path to the `appfile.json` file")
+	if err := appManagementConvertAppFileCmd.MarkFlagRequired(FlagFile); err != nil {
 		log.Fatalln(err.Error())
 	}
 

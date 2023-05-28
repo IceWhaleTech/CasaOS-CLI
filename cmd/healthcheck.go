@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 IceWhaleTech
+Copyright © 2023 IceWhaleTech
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,27 +19,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// userCmd represents the user command
-var userCmd = &cobra.Command{
-	Use:     "user",
-	Short:   "All user related commands",
-	GroupID: RootGroupID,
+// healthcheckCmd represents the healthcheck command
+var healthcheckCmd = &cobra.Command{
+	Use:   "healthcheck",
+	Short: "All healthcheck commands",
 }
 
-const (
-	BasePathUsers = "v2/users"
-)
-
 func init() {
-	rootCmd.AddCommand(userCmd)
+	rootCmd.AddCommand(healthcheckCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// userCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// healthcheckCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// userCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// healthcheckCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

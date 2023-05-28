@@ -18,40 +18,28 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
-	"os"
+	"sort"
+	"text/tabwriter"
 
-	"github.com/IceWhaleTech/CasaOS-CLI/codegen/app_management"
-	"github.com/samber/lo"
+	"github.com/IceWhaleTech/CasaOS-CLI/codegen/casaos"
 	"github.com/spf13/cobra"
 )
 
-// appManagementApplyCmd represents the appManagementApply command
-var appManagementApplyCmd = &cobra.Command{
-	Use:   "apply <appid>",
-	Short: "apply changes to an installed compose app",
-	Args:  cobra.ExactArgs(1),
+// healthcheckPortsInUseCmd represents the healthcheckPortsInUse command
+var healthcheckPortsInUseCmd = &cobra.Command{
+	Use:     "ports-in-use",
+	Short:   "get ports in use",
+	Aliases: []string{"ports", "port-in-use"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
 		if err != nil {
 			return err
 		}
 
-		url := fmt.Sprintf("http://%s/%s", rootURL, BasePathAppManagement)
+		url := fmt.Sprintf("http://%s/%s", rootURL, BasePathCasaOS)
 
-		appID := cmd.Flags().Arg(0)
-
-		dryRun := cmd.Flag(FlagDryRun).Value.String() == "true"
-
-		filepath := cmd.Flag(FlagFile).Value.String()
-
-		file, err := os.Open(filepath)
-		if err != nil {
-			return err
-		}
-
-		client, err := app_management.NewClientWithResponses(url)
+		client, err := casaos.NewClientWithResponses(url)
 		if err != nil {
 			return err
 		}
@@ -59,15 +47,13 @@ var appManagementApplyCmd = &cobra.Command{
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		params := app_management.ApplyComposeAppSettingsParams{DryRun: lo.ToPtr(dryRun)}
-
-		response, err := client.ApplyComposeAppSettingsWithBodyWithResponse(ctx, appID, &params, MIMEApplicationYAML, file)
+		response, err := client.GetHealthPortsWithResponse(ctx)
 		if err != nil {
 			return err
 		}
 
 		if response.StatusCode() != http.StatusOK {
-			var baseResponse app_management.BaseResponse
+			var baseResponse casaos.BaseResponse
 			if err := json.Unmarshal(response.Body, &baseResponse); err != nil {
 				return fmt.Errorf("%s - %s", response.Status(), response.Body)
 			}
@@ -75,29 +61,44 @@ var appManagementApplyCmd = &cobra.Command{
 			return fmt.Errorf("%s - %s", response.Status(), *baseResponse.Message)
 		}
 
-		log.Println(*response.JSON200.Message)
+		if response.JSON200 == nil || response.JSON200.Data == nil {
+			return fmt.Errorf("response body is empty")
+		}
+
+		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
+		defer w.Flush()
+
+		fmt.Fprintln(w, "PORT\tTYPE\t")
+		fmt.Fprintln(w, "----\t----\t")
+
+		if response.JSON200.Data.TCP != nil {
+			sort.Ints(*response.JSON200.Data.TCP)
+			for _, port := range *response.JSON200.Data.TCP {
+				fmt.Fprintf(w, "%d\t%s\n", port, "TCP")
+			}
+		}
+
+		if response.JSON200.Data.UDP != nil {
+			sort.Ints(*response.JSON200.Data.UDP)
+			for _, port := range *response.JSON200.Data.UDP {
+				fmt.Fprintf(w, "%d\t%s\n", port, "UDP")
+			}
+		}
 
 		return nil
 	},
 }
 
 func init() {
-	appManagementCmd.AddCommand(appManagementApplyCmd)
-
-	appManagementApplyCmd.Flags().BoolP(FlagDryRun, "d", false, "dry run")
-
-	appManagementApplyCmd.Flags().StringP(FlagFile, "f", "", "path to a compose file")
-	if err := appManagementApplyCmd.MarkFlagRequired(FlagFile); err != nil {
-		log.Fatalln(err.Error())
-	}
+	healthcheckCmd.AddCommand(healthcheckPortsInUseCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// appManagementApplyCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// healthcheckPortsInUseCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// appManagementApplyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// healthcheckPortsInUseCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
