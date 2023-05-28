@@ -18,40 +18,28 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
+	"time"
 
-	"github.com/IceWhaleTech/CasaOS-CLI/codegen/app_management"
-	"github.com/samber/lo"
+	"github.com/IceWhaleTech/CasaOS-CLI/codegen/casaos"
 	"github.com/spf13/cobra"
 )
 
-// appManagementApplyCmd represents the appManagementApply command
-var appManagementApplyCmd = &cobra.Command{
-	Use:   "apply <appid>",
-	Short: "apply changes to an installed compose app",
-	Args:  cobra.ExactArgs(1),
+// healthcheckLogsCmd represents the healthcheckLogs command
+var healthcheckLogsCmd = &cobra.Command{
+	Use:     "logs",
+	Short:   "get all `casaos-*` logs and save to a ZIP file",
+	Aliases: []string{"log"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
 		if err != nil {
 			return err
 		}
 
-		url := fmt.Sprintf("http://%s/%s", rootURL, BasePathAppManagement)
+		url := fmt.Sprintf("http://%s/%s", rootURL, BasePathCasaOS)
 
-		appID := cmd.Flags().Arg(0)
-
-		dryRun := cmd.Flag(FlagDryRun).Value.String() == "true"
-
-		filepath := cmd.Flag(FlagFile).Value.String()
-
-		file, err := os.Open(filepath)
-		if err != nil {
-			return err
-		}
-
-		client, err := app_management.NewClientWithResponses(url)
+		client, err := casaos.NewClientWithResponses(url)
 		if err != nil {
 			return err
 		}
@@ -59,15 +47,15 @@ var appManagementApplyCmd = &cobra.Command{
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		params := app_management.ApplyComposeAppSettingsParams{DryRun: lo.ToPtr(dryRun)}
+		fmt.Println("getting logs...")
 
-		response, err := client.ApplyComposeAppSettingsWithBodyWithResponse(ctx, appID, &params, MIMEApplicationYAML, file)
+		response, err := client.GetHealthlogsWithResponse(ctx)
 		if err != nil {
 			return err
 		}
 
 		if response.StatusCode() != http.StatusOK {
-			var baseResponse app_management.BaseResponse
+			var baseResponse casaos.BaseResponse
 			if err := json.Unmarshal(response.Body, &baseResponse); err != nil {
 				return fmt.Errorf("%s - %s", response.Status(), response.Body)
 			}
@@ -75,29 +63,42 @@ var appManagementApplyCmd = &cobra.Command{
 			return fmt.Errorf("%s - %s", response.Status(), *baseResponse.Message)
 		}
 
-		log.Println(*response.JSON200.Message)
+		outDir, err := cmd.Flags().GetString(FlagDir)
+		if err != nil {
+			return err
+		}
+
+		if outDir == "" {
+			outDir, err = os.MkdirTemp("", "casaos-cli-*")
+			if err != nil {
+				return err
+			}
+		}
+
+		zipFilePath := fmt.Sprintf("%s/casaos-%s-logs-%s.zip", outDir, Version, time.Now().Format("20060102150405"))
+
+		if err := os.WriteFile(zipFilePath, response.Body, 0o600); err != nil {
+			return err
+		}
+
+		fmt.Printf("logs saved to %s\n", zipFilePath)
 
 		return nil
 	},
 }
 
 func init() {
-	appManagementCmd.AddCommand(appManagementApplyCmd)
+	healthcheckCmd.AddCommand(healthcheckLogsCmd)
 
-	appManagementApplyCmd.Flags().BoolP(FlagDryRun, "d", false, "dry run")
-
-	appManagementApplyCmd.Flags().StringP(FlagFile, "f", "", "path to a compose file")
-	if err := appManagementApplyCmd.MarkFlagRequired(FlagFile); err != nil {
-		log.Fatalln(err.Error())
-	}
+	healthcheckLogsCmd.Flags().StringP(FlagDir, "d", "", "output directory")
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// appManagementApplyCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// healthcheckLogsCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// appManagementApplyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// healthcheckLogsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

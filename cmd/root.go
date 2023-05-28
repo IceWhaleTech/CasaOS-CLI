@@ -26,9 +26,11 @@ import (
 const (
 	BasePathCasaOS = "v2/casaos"
 
-	FlagRootURL = "root-url"
-	FlagForce   = "force"
+	FlagDir     = "dir"
 	FlagDryRun  = "dry-run"
+	FlagFile    = "file"
+	FlagForce   = "force"
+	FlagRootURL = "root-url"
 
 	DefaultTimeout = 10 * time.Second
 	RootGroupID    = "casaos-cli"

@@ -27,10 +27,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	FlagAppManagementFile = "file"
-)
-
 // appManagementInstallCmd represents the appManagementInstall command
 var appManagementInstallCmd = &cobra.Command{
 	Use:     "install",
@@ -46,7 +42,7 @@ var appManagementInstallCmd = &cobra.Command{
 
 		dryRun := cmd.Flag(FlagDryRun).Value.String() == "true"
 
-		filepath := cmd.Flag(FlagAppManagementFile).Value.String()
+		filepath := cmd.Flag(FlagFile).Value.String()
 
 		file, err := os.Open(filepath)
 		if err != nil {
@@ -88,8 +84,8 @@ func init() {
 
 	appManagementInstallCmd.Flags().BoolP(FlagDryRun, "d", false, "dry run")
 
-	appManagementInstallCmd.Flags().StringP(FlagAppManagementFile, "f", "", "path to a compose file")
-	if err := appManagementInstallCmd.MarkFlagRequired(FlagAppManagementFile); err != nil {
+	appManagementInstallCmd.Flags().StringP(FlagFile, "f", "", "path to a compose file")
+	if err := appManagementInstallCmd.MarkFlagRequired(FlagFile); err != nil {
 		log.Fatalln(err.Error())
 	}
 
