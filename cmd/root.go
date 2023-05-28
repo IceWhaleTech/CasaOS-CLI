@@ -24,6 +24,8 @@ import (
 )
 
 const (
+	BasePathCasaOS = "v2/casaos"
+
 	FlagRootURL = "root-url"
 	FlagForce   = "force"
 	FlagDryRun  = "dry-run"
