@@ -19,18 +19,18 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
+	"sort"
 	"text/tabwriter"
 
 	"github.com/IceWhaleTech/CasaOS-CLI/codegen/casaos"
 	"github.com/spf13/cobra"
 )
 
-// healthcheckServicesCmd represents the healthcheckServices command
-var healthcheckServicesCmd = &cobra.Command{
-	Use:     "services",
-	Short:   "get running status of each `casaos-*` service",
-	Aliases: []string{"svc", "service"},
+// healthcheckPortsInUseCmd represents the healthcheckPortsInUse command
+var healthcheckPortsInUseCmd = &cobra.Command{
+	Use:     "ports-in-use",
+	Short:   "get ports in use",
+	Aliases: []string{"ports", "port-in-use"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		rootURL, err := rootCmd.PersistentFlags().GetString(FlagRootURL)
 		if err != nil {
@@ -47,7 +47,7 @@ var healthcheckServicesCmd = &cobra.Command{
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		response, err := client.GetHealthServicesWithResponse(ctx)
+		response, err := client.GetHealthPortsWithResponse(ctx)
 		if err != nil {
 			return err
 		}
@@ -68,18 +68,20 @@ var healthcheckServicesCmd = &cobra.Command{
 		w := tabwriter.NewWriter(cmd.OutOrStdout(), 0, 0, 2, ' ', 0)
 		defer w.Flush()
 
-		fmt.Fprintln(w, "NAME\tSTATUS\t")
-		fmt.Fprintln(w, "----\t------\t")
+		fmt.Fprintln(w, "PORT\tTYPE\t")
+		fmt.Fprintln(w, "----\t----\t")
 
-		if response.JSON200.Data.Running != nil {
-			for _, service := range *response.JSON200.Data.Running {
-				fmt.Fprintf(w, "%s\t%s\n", strings.TrimSuffix(service, ".service"), "running")
+		if response.JSON200.Data.TCP != nil {
+			sort.Ints(*response.JSON200.Data.TCP)
+			for _, port := range *response.JSON200.Data.TCP {
+				fmt.Fprintf(w, "%d\t%s\n", port, "TCP")
 			}
 		}
 
-		if response.JSON200.Data.NotRunning != nil {
-			for _, service := range *response.JSON200.Data.NotRunning {
-				fmt.Fprintf(w, "%s\t%s\n", strings.TrimSuffix(service, ".service"), "not running")
+		if response.JSON200.Data.UDP != nil {
+			sort.Ints(*response.JSON200.Data.UDP)
+			for _, port := range *response.JSON200.Data.UDP {
+				fmt.Fprintf(w, "%d\t%s\n", port, "UDP")
 			}
 		}
 
@@ -88,15 +90,15 @@ var healthcheckServicesCmd = &cobra.Command{
 }
 
 func init() {
-	healthcheckCmd.AddCommand(healthcheckServicesCmd)
+	healthcheckCmd.AddCommand(healthcheckPortsInUseCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// healthcheckServicesCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// healthcheckPortsInUseCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// healthcheckServicesCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// healthcheckPortsInUseCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
