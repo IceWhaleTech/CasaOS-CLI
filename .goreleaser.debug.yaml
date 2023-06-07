@@ -59,26 +59,15 @@ builds:
     goarm:
       - "7"
 archives:
-  - name_template: "{{ .Os }}-{{ .Arch }}-{{ .ProjectName }}-v{{ .Version }}"
+  - name_template: >-
+      {{ .Os }}-{{- if eq .Arch "arm" }}arm-7{{- else }}{{ .Arch }}{{- end }}-{{ .ProjectName }}-v{{ .Version }}
     id: casaos-cli
     builds:
       - casaos-cli-amd64
       - casaos-cli-arm64
       - casaos-cli-arm-7
-    replacements:
-      arm: arm-7
     files:
       - build/**/*
-  - name_template: "{{ .Os }}-{{ .Arch }}-{{ .ProjectName }}-migration-tool-v{{ .Version }}"
-    id: casaos-cli-migration-tool
-    builds:
-      - casaos-cli-migration-tool-amd64
-      - casaos-cli-migration-tool-arm64
-      - casaos-cli-migration-tool-arm-7
-    replacements:
-      arm: arm-7
-    files:
-      - build/sysroot/etc/**/*
 checksum:
   name_template: "checksums.txt"
 snapshot:
