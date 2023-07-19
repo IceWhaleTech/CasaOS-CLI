@@ -87,3 +87,4 @@ Follow example steps below to add commands like `casaos-cli message-bus list eve
     ```
 
 > Run `go run github.com/spf13/cobra-cli@latest --help` to see additional help message.
+
