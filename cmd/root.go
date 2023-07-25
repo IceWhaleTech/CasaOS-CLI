@@ -68,19 +68,31 @@ func Execute() {
 }
 
 func init() {
-	url := "localhost:80"
+	url := ""
 
-	cfgs, err := ini.Load(GatewayPath)
-	if err != nil {
-		log.Fatalln(err.Error())
+	rootCmd.PersistentFlags().StringP(FlagRootURL, "u", "", "root url of CasaOS API")
+
+	if rootCmd.PersistentFlags().Changed(FlagRootURL) {
+		url = rootCmd.PersistentFlags().Lookup(FlagRootURL).Value.String()
+	} else {
+		if _, err := os.Stat(GatewayPath); err == nil {
+			cfgs, err := ini.Load(GatewayPath)
+			if err != nil {
+				log.Println("No gateway config found, use default root url")
+			}
+
+			port := cfgs.Section("gateway").Key("port").Value()
+			if port != "" {
+				url = fmt.Sprintf("localhost:%s", port)
+			}
+		}
 	}
 
-	port := cfgs.Section("gateway").Key("port").Value()
-	if port != "" {
-		url = fmt.Sprintf("localhost:%s", port)
+	if url == "" {
+		url = "localhost:80"
 	}
 
-	rootCmd.PersistentFlags().StringP(FlagRootURL, "u", url, "root url of CasaOS API")
+	rootCmd.PersistentFlags().Set(FlagRootURL, url)
 	rootCmd.AddGroup(&cobra.Group{
 		ID:    RootGroupID,
 		Title: "Services",
