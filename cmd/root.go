@@ -35,6 +35,8 @@ const (
 	FlagForce   = "force"
 	FlagRootURL = "root-url"
 
+	GatewayPath = "/etc/casaos/gateway.ini"
+
 	DefaultTimeout = 10 * time.Second
 	RootGroupID    = "casaos-cli"
 )
@@ -66,12 +68,17 @@ func Execute() {
 }
 
 func init() {
-	cfgs, err := ini.Load("/etc/casaos/gateway.ini")
+	url := "localhost:80"
+
+	cfgs, err := ini.Load(GatewayPath)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
 
-	url := fmt.Sprintf("%s:%s", "localhost", cfgs.Section("gateway").Key("port").Value())
+	port := cfgs.Section("gateway").Key("port").Value()
+	if port != "" {
+		url = fmt.Sprintf("localhost:%s", port)
+	}
 
 	rootCmd.PersistentFlags().StringP(FlagRootURL, "u", url, "root url of CasaOS API")
 	rootCmd.AddGroup(&cobra.Group{
