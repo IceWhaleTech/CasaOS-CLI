@@ -16,9 +16,12 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
+	"log"
 	"os"
 	"time"
 
+	"github.com/go-ini/ini"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/spf13/cobra"
 )
@@ -31,6 +34,8 @@ const (
 	FlagFile    = "file"
 	FlagForce   = "force"
 	FlagRootURL = "root-url"
+
+	GatewayPath = "/etc/casaos/gateway.ini"
 
 	DefaultTimeout = 10 * time.Second
 	RootGroupID    = "casaos-cli"
@@ -63,8 +68,31 @@ func Execute() {
 }
 
 func init() {
-	// TODO - read from /etc/casaos/gateway.ini
-	rootCmd.PersistentFlags().StringP(FlagRootURL, "u", "localhost:80", "root url of CasaOS API")
+	url := ""
+
+	rootCmd.PersistentFlags().StringP(FlagRootURL, "u", "", "root url of CasaOS API")
+
+	if rootCmd.PersistentFlags().Changed(FlagRootURL) {
+		url = rootCmd.PersistentFlags().Lookup(FlagRootURL).Value.String()
+	} else {
+		if _, err := os.Stat(GatewayPath); err == nil {
+			cfgs, err := ini.Load(GatewayPath)
+			if err != nil {
+				log.Println("No gateway config found, use default root url")
+			}
+
+			port := cfgs.Section("gateway").Key("port").Value()
+			if port != "" {
+				url = fmt.Sprintf("localhost:%s", port)
+			}
+		}
+	}
+
+	if url == "" {
+		url = "localhost:80"
+	}
+
+	rootCmd.PersistentFlags().Set(FlagRootURL, url)
 	rootCmd.AddGroup(&cobra.Group{
 		ID:    RootGroupID,
 		Title: "Services",
