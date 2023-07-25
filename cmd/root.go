@@ -16,9 +16,12 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
+	"log"
 	"os"
 	"time"
 
+	"github.com/go-ini/ini"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/spf13/cobra"
 )
@@ -63,8 +66,14 @@ func Execute() {
 }
 
 func init() {
-	// TODO - read from /etc/casaos/gateway.ini
-	rootCmd.PersistentFlags().StringP(FlagRootURL, "u", "localhost:80", "root url of CasaOS API")
+	cfgs, err := ini.Load("/etc/casaos/gateway.ini")
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+
+	url := fmt.Sprintf("%s:%s", "localhost", cfgs.Section("gateway").Key("port").Value())
+
+	rootCmd.PersistentFlags().StringP(FlagRootURL, "u", url, "root url of CasaOS API")
 	rootCmd.AddGroup(&cobra.Group{
 		ID:    RootGroupID,
 		Title: "Services",
