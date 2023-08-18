@@ -27,8 +27,28 @@ import (
 
 // appManagementSetGlobalCmd represents the appManagementSetGlobal command
 var appManagementSetGlobalCmd = &cobra.Command{
-	Use:   "global",
+	Use:   "global <key> <value>",
 	Short: "set a global variable",
+	Long: `Set a global environment variable that will always be passed to each container of an compose app.
+
+This is useful for compose apps that need the same environment variables. Instead of specifying
+an environment variable multiple time for each app, it can be set globally for convenience.
+
+Global environment variables are stored at 'env' file at CasaOS configuration path, e.g. /etc/casaos/env
+
+Note: If the compose app already has an environment variable with identical name defined in its
+      docker-compose.yaml file, then the global environment variable will be ignored.
+	`,
+	Example: `
+# set API Key for OpenAI related apps
+$ casaos-cli app-management set global OPENAI_API_KEY sk-xxxxxxxxxx
+
+# show all global environment variables
+$ casaos-cli app-management show global
+Global Key       Global Value
+--------------   ------------
+OPENAI_API_KEY   sk-xxxxxxxxxx   
+`,
 	Args: cobra.MatchAll(cobra.ExactArgs(2), func(cmd *cobra.Command, args []string) error {
 		// the func sould to check the args.
 		// to force the Key  is not a number is hard to do this.
