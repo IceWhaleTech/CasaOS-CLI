@@ -34,7 +34,7 @@ const (
 )
 
 var authorTypes = []string{
-	string(app_management.Official), string(app_management.ByCasaos), string(app_management.Community),
+	string(app_management.AuthorTypeOfficial), string(app_management.AuthorTypeByCasaOS), string(app_management.AuthorTypeCommunity),
 }
 
 // appManagementSearchCmd represents the appManagementSearch command
