@@ -18,7 +18,8 @@ jobs:
           sudo apt-get --no-install-recommends --yes install \
             upx libc6-dev-amd64-cross \
             gcc-aarch64-linux-gnu libc6-dev-arm64-cross \
-            gcc-arm-linux-gnueabihf libc6-dev-armhf-cross
+            gcc-arm-linux-gnueabihf libc6-dev-armhf-cross \
+            gcc-riscv64-linux-gnu libc6-dev-riscv64-cross
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -56,3 +57,4 @@ jobs:
             dist/linux-amd64-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz:/IceWhaleTech/CasaOS-CLI/releases/download/${{ steps.get_version.outputs.VERSION }}/linux-amd64-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz
             dist/linux-arm64-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz:/IceWhaleTech/CasaOS-CLI/releases/download/${{ steps.get_version.outputs.VERSION }}/linux-arm64-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz
             dist/linux-arm-7-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz:/IceWhaleTech/CasaOS-CLI/releases/download/${{ steps.get_version.outputs.VERSION }}/linux-arm-7-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz
+            dist/linux-riscv64-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz:/IceWhaleTech/CasaOS-CLI/releases/download/${{ steps.get_version.outputs.VERSION }}/linux-riscv64-casaos-cli-${{ steps.get_version.outputs.VERSION }}.tar.gz
