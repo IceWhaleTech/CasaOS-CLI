@@ -73,6 +73,24 @@ builds:
       - arm
     goarm:
       - "7"
+  - id: casaos-cli-riscv64
+    binary: build/sysroot/usr/bin/casaos-cli
+    env:
+      - CC=riscv64-linux-gnu-gcc
+    ldflags:
+      - -X main.commit={{.Commit}}
+      - -X main.date={{.Date}}
+      - -s
+      - -w
+      - -extldflags "-static"
+    tags:
+      - musl
+      - netgo
+      - osusergo
+    goos:
+      - linux
+    goarch:
+      - riscv64
 archives:
   - name_template: >-
       {{ .Os }}-{{- if eq .Arch "arm" }}arm-7{{- else }}{{ .Arch }}{{- end }}-{{ .ProjectName }}-v{{ .Version }}
@@ -81,6 +99,7 @@ archives:
       - casaos-cli-amd64
       - casaos-cli-arm64
       - casaos-cli-arm-7
+      - casaos-cli-riscv64
     files:
       - build/**/*
 checksum:
