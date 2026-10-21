@@ -1,5 +1,6 @@
 # This is an example .goreleaser.yml file with some sensible defaults.
 # Make sure to check the documentation at https://goreleaser.com
+version: 2
 project_name: casaos-cli
 before:
   hooks:
@@ -95,7 +96,7 @@ archives:
   - name_template: >-
       {{ .Os }}-{{- if eq .Arch "arm" }}arm-7{{- else }}{{ .Arch }}{{- end }}-{{ .ProjectName }}-v{{ .Version }}
     id: casaos-cli
-    builds:
+    ids:
       - casaos-cli-amd64
       - casaos-cli-arm64
       - casaos-cli-arm-7
@@ -105,7 +106,7 @@ archives:
 checksum:
   name_template: "checksums.txt"
 snapshot:
-  name_template: "{{ incpatch .Version }}"
+  version_template: "{{ incpatch .Version }}"
 changelog:
   sort: asc
   filters:
@@ -113,6 +114,7 @@ changelog:
       - "^docs:"
       - "^test:"
 release:
+  disable: true
   github:
     owner: IceWhaleTech
     name: CasaOS-CLI
